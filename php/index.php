@@ -1,7 +1,5 @@
-
 <?php
 session_start();
-// セッションの初期化
 $amount = $_SESSION['amount'] ?? '';
 $quantity = $_SESSION['quantity'] ?? 1;
 ?>
@@ -9,87 +7,119 @@ $quantity = $_SESSION['quantity'] ?? 1;
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YSEレジ System</title>
+    <title>YSE POS System v3</title>
     <style>
-        :root { --bg-color: #f0f2f5; --display-bg: #1a1a1a; --key-bg: #ffffff; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-color); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .pos-container { background: #333; padding: 20px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 320px; }
+        body { background: #34495e; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Helvetica', sans-serif; }
         
-        /* ディスプレイ部分 */
-        .display-area { background: var(--display-bg); color: #00ff41; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: right; border: 4px solid #444; }
-        .label { font-size: 12px; color: #888; display: block; }
-        .main-value { font-size: 32px; font-family: 'Courier New', Courier, monospace; min-height: 38px; letter-spacing: 2px; }
+        /* レジ筐体：横長に変更 */
+        .pos-machine { 
+            background: #dcdde1; padding: 30px; border-radius: 15px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            display: flex; gap: 30px; align-items: flex-start; /* 左右に並べる */
+            border-bottom: 10px solid #7f8c8d;
+        }
 
-        /* キーパッド部分 */
+        /* 左側：ディスプレイエリア */
+        .display-section { width: 350px; }
+        
+        .screen { 
+            background: #2f3640; color: #00ecff; padding: 20px; 
+            border-radius: 8px; border: 5px solid #1e272e;
+            box-shadow: inset 0 0 15px #000;
+            margin-bottom: 15px;
+        }
+        .screen-label { font-size: 14px; color: #718093; margin-bottom: 10px; font-weight: bold; }
+        
+        /* 数字はしっかり「右寄せ」 */
+        .main-display { 
+            font-size: 48px; font-family: 'Courier New', monospace; 
+            text-align: right; 
+            min-height: 55px; letter-spacing: 2px;
+        }
+
+        /* 右側：操作パネル */
+        .control-section { width: 220px; }
+
         .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         button { 
-            border: none; padding: 20px; font-size: 20px; font-weight: bold; border-radius: 8px; cursor: pointer;
-            background: var(--key-bg); transition: transform 0.1s, background 0.2s; box-shadow: 0 4px #bbb;
+            height: 55px; border: none; border-radius: 6px; font-size: 18px; font-weight: bold;
+            cursor: pointer; background: #f5f6fa; box-shadow: 0 4px #bdc3c7; color: #2f3640;
         }
-        button:active { transform: translateY(3px); box-shadow: 0 1px #888; }
-        .btn-num { color: #333; }
-        .btn-op { background: #ff9800; color: white; box-shadow: 0 4px #e68a00; }
-        .btn-ac { background: #f44336; color: white; box-shadow: 0 4px #d32f2f; grid-column: span 1; }
-        .btn-calc { background: #4caf50; color: white; box-shadow: 0 4px #388e3c; grid-column: span 2; }
+        button:active { transform: translateY(2px); box-shadow: 0 2px #95a5a6; }
         
-        .quantity-control { margin-top: 15px; display: flex; align-items: center; background: #444; padding: 10px; border-radius: 8px; color: white; }
-        input[type="number"] { width: 60px; margin-left: 10px; border-radius: 4px; border: none; padding: 5px; font-size: 16px; }
+        .btn-ac { background: #e84118; color: white; box-shadow: 0 4px #c23616; }
+        .btn-enter { background: #27ae60; color: white; box-shadow: 0 4px #219150; grid-column: span 2; }
+        
+        .quantity-box { 
+            margin-top: 20px; padding: 15px; background: #f5f6fa; 
+            border-radius: 8px; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input[type="number"] { width: 60px; font-size: 20px; text-align: center; border: 2px solid #dcdde1; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-<div class="pos-container">
-    <div class="display-area">
-        <span class="label">TOTAL AMOUNT (MAX 9 DIGITS)</span>
-        <div class="main-value" id="disp">0</div>
+<div class="pos-machine">
+    <!-- 左側：液晶画面 -->
+    <div class="display-section">
+        <div class="screen">
+            <div class="screen-label">お会計金額 (TOTAL)</div>
+            <div class="main-display" id="disp">0</div>
+        </div>
+        <div class="quantity-box">
+            <span style="font-weight: bold; color: #2f3640;">数量:</span>
+            <input type="number" form="pos-form" name="quantity" value="<?= $quantity ?>" min="1">
+        </div>
     </div>
 
-    <form id="pos-form" method="POST" action="process.php">
-        <div class="keypad">
-            <?php for ($i = 1; $i <= 9; $i++): ?>
-                <button type="button" class="btn-num" onclick="addNum(<?= $i ?>)"><?= $i ?></button>
-            <?php endfor; ?>
-            
-            <button type="button" class="btn-ac" onclick="clearAll()">AC</button>
-            <button type="button" class="btn-num" onclick="addNum(0)">0</button>
-            <button type="submit" name="action" value="calc" class="btn-calc">ENTER / 計算</button>
-        </div>
-
-        <div class="quantity-control">
-            <span>個数:</span>
-            <input type="number" name="quantity" id="qty" value="<?= $quantity ?>" min="1">
-        </div>
-        
-        <input type="hidden" name="amount" id="hidden_amount" value="<?= $amount ?>">
-    </form>
+    <!-- 右側：テンキー -->
+    <div class="control-section">
+        <form id="pos-form" method="POST" action="process.php">
+            <div class="keypad">
+                <?php for ($i = 1; $i <= 9; $i++): ?>
+                    <button type="button" onclick="addNum('<?= $i ?>')"><?= $i ?></button>
+                <?php endfor; ?>
+                
+                <button type="button" class="btn-ac" onclick="clearAll()">AC</button>
+                <button type="button" onclick="addNum('0')">0</button>
+                <button type="submit" class="btn-enter">確定</button>
+            </div>
+            <input type="hidden" name="amount" id="hidden_amount" value="<?= $amount ?>">
+        </form>
+    </div>
 </div>
 
 <script>
     const disp = document.getElementById('disp');
-    const hiddenAmount = document.getElementById('hidden_amount');
+    const hiddenInput = document.getElementById('hidden_amount');
     let currentVal = "<?= $amount ?>";
 
     function updateDisplay() {
-        // 9桁パディングのロジック
-        let text = currentVal === '' ? '0' : currentVal;
-        disp.innerText = text.padStart(9, ' ');
-        hiddenAmount.value = currentVal;
+        let num = parseInt(currentVal);
+        if (isNaN(num)) {
+            disp.innerText = "0";
+            hiddenInput.value = "";
+        } else {
+            // 数字は右寄せでカンマ区切り
+            disp.innerText = num.toLocaleString();
+            hiddenInput.value = currentVal;
+        }
     }
 
-    function addNum(num) {
+    function addNum(n) {
         if (currentVal.length < 9) {
-            currentVal += num;
+            if (currentVal === "" && n === "0") return;
+            currentVal += n;
             updateDisplay();
         }
     }
 
     function clearAll() {
-        currentVal = '';
+        currentVal = "";
         updateDisplay();
     }
 
-    // 初期表示
     updateDisplay();
 </script>
 
