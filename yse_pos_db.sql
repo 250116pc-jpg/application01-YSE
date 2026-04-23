@@ -24,6 +24,20 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- テーブルの構造 `users`
+--
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` varchar(50) NOT NULL COMMENT 'ログインID',
+  `password_hash` varchar(255) NOT NULL COMMENT 'パスワードハッシュ',
+  `role` tinyint(1) NOT NULL DEFAULT 0 COMMENT '権限（0:ユーザ、1:管理者）',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '登録日時',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id_unique` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
 -- テーブルの構造 `sales`
 --
 

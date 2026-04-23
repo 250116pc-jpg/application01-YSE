@@ -1,28 +1,44 @@
 <?php
 session_start();
 $error = "";
+$registered = isset($_GET['registered']) && $_GET['registered'] == 1;
 
 if (!empty($_POST)) {
-    $email = $_POST['email'] ?? '';
+    $user_id = trim($_POST['user_id'] ?? '');
     $password = $_POST['password'] ?? '';
     $role = $_POST['role'] ?? ''; // 0: ユーザ利用, 1: 管理者機能
 
-    if ($email === "" || $password === "") {
-        $error = "メールアドレスとパスワードを入力してください";
+    if ($user_id === "" || $password === "") {
+        $error = "IDとパスワードを入力してください";
     } elseif ($role === "") {
         $error = "右側のボタンから「ユーザ利用」か「管理者機能」を選択してください";
     } else {
-        // テスト用： ID 'test' / PASS '1234' でログイン可能
-        if ($email === "test" && $password === "1234") {
-            $_SESSION['role'] = $role;
-            if ($role == 1) {
-                header('Location: admin_menu.php');
+        require_once 'db.php';
+
+        try {
+            $pdo = getPdo();
+            $stmt = $pdo->prepare('SELECT id, password_hash, role FROM users WHERE user_id = ?');
+            $stmt->execute([$user_id]);
+            $user = $stmt->fetch();
+
+            if ($user && password_verify($password, $user['password_hash'])) {
+                if ((int)$role !== (int)$user['role']) {
+                    $error = "選択した機能とログイン権限が一致しません";
+                } else {
+                    $_SESSION['role'] = $role;
+                    if ($role == 1) {
+                        header('Location: admin_menu.php');
+                    } else {
+                        header('Location: index.php');
+                    }
+                    exit();
+                }
             } else {
-                header('Location: index.php');
+                $error = "ログイン情報が正しくありません";
             }
-            exit();
-        } else {
-            $error = "ログイン情報が正しくありません";
+        } catch (PDOException $e) {
+            $error = "データベース接続に失敗しました。管理者に連絡してください";
+            error_log('ログインエラー: ' . $e->getMessage());
         }
     }
 }
@@ -77,8 +93,11 @@ if (!empty($_POST)) {
 <div class="login-box">
     <h1>YSEレジシステム</h1>
 
-    <?php if($error): ?>
-        <p class="error-msg"><?= $error ?></p>
+    <?php if ($registered): ?>
+        <p class="error-msg" style="color: #27ae60;">登録が完了しました。IDとパスワードでログインしてください。</p>
+    <?php endif; ?>
+    <?php if ($error): ?>
+        <p class="error-msg"><?= htmlspecialchars($error) ?></p>
     <?php endif; ?>
 
     <form action="" method="post" id="loginForm">
@@ -87,8 +106,8 @@ if (!empty($_POST)) {
         <div class="main-layout">
             <div class="input-side">
                 <div>
-                    <label>メールアドレス</label>
-                    <input type="text" name="email" placeholder="メールアドレスを入力" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                    <label>ユーザーID</label>
+                    <input type="text" name="user_id" placeholder="ユーザーIDを入力" value="<?= htmlspecialchars($_POST['user_id'] ?? '') ?>">
                 </div>
                 <div>
                     <label>パスワード</label>
@@ -107,9 +126,12 @@ if (!empty($_POST)) {
         </div>
 
         <div class="submit-container">
-            <button type="submit" class="submit-btn">登録してログインする</button>
+            <button type="submit" class="submit-btn">ログイン</button>
         </div>
     </form>
+    <div class="submit-container">
+        <a href="register.php" class="submit-btn" style="text-decoration: none; display: inline-block; background-color: #3498db; color: white;">新規登録はこちら</a>
+    </div>
 </div>
 
 <script>
