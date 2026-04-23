@@ -47,24 +47,20 @@ if (isset($_POST['action'])) {
             break;
 
         // ★ 新規追加：計上ボタンが押された時のデータベース保存処理 ★
+        // ★ 新規追加：計上ボタンが押された時のデータベース保存処理 ★
         case 'keijo':
             $amount = (int)($_SESSION['amount'] ?: 0);
             $customer_id = 1; // ※仕様に沿って顧客IDを取得、テスト用は固定値
 
             if ($amount > 0) {
-                // データベース接続設定（ローカルの yse_pos_db を想定）
-                $dsn = 'mysql:dbname=yse_pos_db;host=localhost;charset=utf8mb4';
-                $user = 'root'; // XAMPP等のデフォルト
-                $password = ''; // XAMPP等のデフォルト
+                // 👈 ここでさっき作ったファイルを読み込む！
+                require_once 'dbconnect.php'; 
 
                 try {
-                    $pdo = new PDO($dsn, $user, $password, [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-                    ]);
-
                     // 売上情報を sales テーブルに保存（INSERT）
+                    // ※ $pdo を $db に変更しています
                     $sql = "INSERT INTO sales (customer_id, amount) VALUES (?, ?)";
-                    $stmt = $pdo->prepare($sql);
+                    $stmt = $db->prepare($sql);
                     $stmt->execute([$customer_id, $amount]);
 
                     // 保存が成功したら、次の入力のためにセッションをクリアする
@@ -72,8 +68,8 @@ if (isset($_POST['action'])) {
                     $_SESSION['quantity'] = 1;
                     
                 } catch (PDOException $e) {
-                    // DB接続や保存に失敗した場合のエラーログ出力
-                    error_log("計上エラー: " . $e->getMessage());
+                    // エラー処理...
+                    error_log("データベースエラー: " . $e->getMessage());
                 }
             }
             break;
