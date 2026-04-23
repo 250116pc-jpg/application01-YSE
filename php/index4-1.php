@@ -66,7 +66,7 @@ $quantity = $_SESSION['quantity'] ?? 1;
 
 <div class="pos-machine">
     <div class="display-section">
-        <h2 style="margin-top: 0; margin-bottom: 15px; color: #2f3640; font-size: 50px;">YSEレジ</h2>
+        <h2 style="margin-top: -20px; margin-bottom: 40px; color: #2f3640; font-size: 50px;">YSEレジ</h2>
         
         <div class="screen">
             <div class="screen-label">TOTAL</div>
