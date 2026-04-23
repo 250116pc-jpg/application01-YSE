@@ -17,25 +17,24 @@ h1 {
 }
 
 .screen {
-    position: relative; /* 追加：子要素(記号)の絶対配置の基準にする */
+    position: relative;
     background-color: #000;
     border: 3px solid #32cd32;
     color: #fff;
     text-align: right;
-    padding: 22px 10px 8px 10px; /* 上部の余白を広げて記号のスペースを確保 */
+    padding: 22px 10px 8px 10px;
     font-size: 24px;
     margin-bottom: 20px;
     min-height: 60px;
     box-sizing: border-box;
 }
 
-/* 追加：右上の記号表示用のスタイル */
 .op-indicator {
     position: absolute;
     top: 5px;
     right: 10px;
     font-size: 14px;
-    color: #ccc; /* メイン数字より少し控えめな色 */
+    color: #ccc;
     min-height: 14px;
 }
 
@@ -70,4 +69,86 @@ button:active {
 .btn-equal {
     grid-row: span 2;
     height: 100%;
+}
+
+/* =========================================
+   ログイン画面 (login.php) 用の追加スタイル
+   (レジのレイアウトに合わせるための設定)
+========================================= */
+.login-lead {
+    font-size: 14px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.login-lead a {
+    color: #0066cc;
+}
+
+.login-error {
+    color: red;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.login-form dl {
+    margin: 0;
+    padding: 0;
+}
+
+.login-form dt {
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.login-form dd {
+    margin: 0;
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #aaa;
+    border-radius: 2px;
+}
+
+.checkbox-wrap {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.checkbox-wrap label {
+    cursor: pointer;
+}
+
+/* ログインボタンをレジのボタンデザインに合わせる */
+.login-btn-wrap {
+    margin-top: 25px;
+    display: grid; 
+}
+
+.btn-submit {
+    background-color: #f0f0f0;
+    border: 1px solid #aaa;
+    padding: 15px 0;
+    font-size: 16px;
+    cursor: pointer;
+    box-sizing: border-box;
+    border-radius: 2px;
+    width: 100%;
+    font-weight: bold;
+}
+
+.btn-submit:hover {
+    background-color: #e5e5e5;
+}
+
+.btn-submit:active {
+    background-color: #dcdcdc;
 }
