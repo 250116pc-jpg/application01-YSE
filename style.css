@@ -1,0 +1,106 @@
+/* 共通背景 */
+body {
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    background-color: #34495e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* レジマシン本体の枠（index.phpと共通） */
+.pos-machine {
+    background: #dcdde1;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    width: 350px; /* ログイン用に幅を調整 */
+    border-bottom: 10px solid #7f8c8d;
+}
+
+h1 {
+    text-align: center;
+    color: #2f3640;
+    margin-top: 0;
+    font-size: 24px;
+}
+
+/* ログインフォーム内の調整 */
+.login-info {
+    text-align: center;
+    color: #7f8c8d;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.login-info a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+/* 入力エリアのスタイル */
+dl { margin: 0; }
+dt {
+    font-weight: bold;
+    color: #2f3640;
+    margin-top: 15px;
+    font-size: 14px;
+}
+dd { margin: 5px 0 0 0; }
+
+input[type="text"],
+input[type="password"] {
+    padding: 10px;
+    border: 2px solid #bdc3c7;
+    border-radius: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 16px;
+    background: #f5f6fa;
+}
+
+/* チェックボックス部分 */
+.checkbox-label {
+    font-size: 12px;
+    color: #7f8c8d;
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+    cursor: pointer;
+}
+.checkbox-label input { margin-right: 5px; }
+
+/* ログインボタン（レジの「計上」や「＝」ボタンと同じ色使い） */
+.submit-group {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.btn-login {
+    width: 100%;
+    background: #27ae60; /* 確定・計上の緑 */
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px #219150;
+    transition: all 0.1s;
+}
+
+.btn-login:active {
+    transform: translateY(2px);
+    box-shadow: 0 2px #219150;
+}
+
+/* エラーメッセージ */
+.error {
+    color: #e84118;
+    font-size: 13px;
+    margin: 10px 0;
+    text-align: center;
+    font-weight: bold;
+}
