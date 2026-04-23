@@ -1,106 +1,154 @@
-/* 共通背景 */
 body {
-    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-    background-color: #34495e;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    font-family: sans-serif;
+    background-color: #fff;
+    padding: 30px;
     margin: 0;
 }
 
-/* レジマシン本体の枠（index.phpと共通） */
 .pos-machine {
-    background: #dcdde1;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    width: 350px; /* ログイン用に幅を調整 */
-    border-bottom: 10px solid #7f8c8d;
+    width: 280px;
 }
 
 h1 {
-    text-align: center;
-    color: #2f3640;
-    margin-top: 0;
-    font-size: 24px;
+    font-size: 28px;
+    margin: 0 0 15px 0;
+    font-weight: bold;
+    color: #000;
 }
 
-/* ログインフォーム内の調整 */
-.login-info {
-    text-align: center;
-    color: #7f8c8d;
+.screen {
+    position: relative;
+    background-color: #000;
+    border: 3px solid #32cd32;
+    color: #fff;
+    text-align: right;
+    padding: 22px 10px 8px 10px;
+    font-size: 24px;
+    margin-bottom: 20px;
+    min-height: 60px;
+    box-sizing: border-box;
+}
+
+.op-indicator {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 14px;
+    color: #ccc;
+    min-height: 14px;
+}
+
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+}
+
+button {
+    background-color: #f0f0f0;
+    border: 1px solid #aaa;
+    padding: 15px 0;
+    font-size: 16px;
+    cursor: pointer;
+    box-sizing: border-box;
+    border-radius: 2px;
+}
+
+button:hover {
+    background-color: #e5e5e5;
+}
+
+button:active {
+    background-color: #dcdcdc;
+}
+
+.span-2 {
+    grid-column: span 2;
+}
+
+.btn-equal {
+    grid-row: span 2;
+    height: 100%;
+}
+
+/* =========================================
+   ログイン画面 (login.php) 用の追加スタイル
+   (レジのレイアウトに合わせるための設定)
+========================================= */
+.login-lead {
     font-size: 14px;
     margin-bottom: 20px;
+    color: #333;
 }
 
-.login-info a {
-    color: #3498db;
-    text-decoration: none;
+.login-lead a {
+    color: #0066cc;
 }
 
-/* 入力エリアのスタイル */
-dl { margin: 0; }
-dt {
-    font-weight: bold;
-    color: #2f3640;
-    margin-top: 15px;
+.login-error {
+    color: red;
     font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
-dd { margin: 5px 0 0 0; }
 
-input[type="text"],
-input[type="password"] {
-    padding: 10px;
-    border: 2px solid #bdc3c7;
-    border-radius: 6px;
+.login-form dl {
+    margin: 0;
+    padding: 0;
+}
+
+.login-form dt {
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.login-form dd {
+    margin: 0;
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"] {
     width: 100%;
     box-sizing: border-box;
+    padding: 10px;
     font-size: 16px;
-    background: #f5f6fa;
+    border: 1px solid #aaa;
+    border-radius: 2px;
 }
 
-/* チェックボックス部分 */
-.checkbox-label {
-    font-size: 12px;
-    color: #7f8c8d;
-    display: flex;
-    align-items: center;
+.checkbox-wrap {
+    font-size: 14px;
     margin-top: 5px;
+}
+
+.checkbox-wrap label {
     cursor: pointer;
 }
-.checkbox-label input { margin-right: 5px; }
 
-/* ログインボタン（レジの「計上」や「＝」ボタンと同じ色使い） */
-.submit-group {
-    text-align: center;
+/* ログインボタンをレジのボタンデザインに合わせる */
+.login-btn-wrap {
     margin-top: 25px;
+    display: grid; 
 }
 
-.btn-login {
-    width: 100%;
-    background: #27ae60; /* 確定・計上の緑 */
-    color: white;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    font-size: 18px;
-    font-weight: bold;
+.btn-submit {
+    background-color: #f0f0f0;
+    border: 1px solid #aaa;
+    padding: 15px 0;
+    font-size: 16px;
     cursor: pointer;
-    box-shadow: 0 4px #219150;
-    transition: all 0.1s;
-}
-
-.btn-login:active {
-    transform: translateY(2px);
-    box-shadow: 0 2px #219150;
-}
-
-/* エラーメッセージ */
-.error {
-    color: #e84118;
-    font-size: 13px;
-    margin: 10px 0;
-    text-align: center;
+    box-sizing: border-box;
+    border-radius: 2px;
+    width: 100%;
     font-weight: bold;
+}
+
+.btn-submit:hover {
+    background-color: #e5e5e5;
+}
+
+.btn-submit:active {
+    background-color: #dcdcdc;
 }
