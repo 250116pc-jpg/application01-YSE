@@ -7,40 +7,49 @@ $quantity = $_SESSION['quantity'] ?? 1;
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>YSE POS System v4.2 - Fixed</title>
+    <title>YSE POS System</title>
     <style>
         body { background: #34495e; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Helvetica', sans-serif; }
         
         .pos-machine { 
             background: #dcdde1; padding: 30px; border-radius: 15px; 
             box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            display: flex; gap: 30px; align-items: flex-start;
+            display: flex; 
+            flex-direction: column; /* ここで縦並びに変更しています */
+            align-items: center;
             border-bottom: 10px solid #7f8c8d;
+            width: 360px; /* 全体の幅を固定 */
         }
 
-        .display-section { width: 350px; }
+        .display-section { width: 100%; margin-bottom: 20px; }
         
         .screen { 
-            background: #2f3640; color: #00ecff; padding: 15px 20px; 
-            border-radius: 8px; border: 5px solid #1e272e;
-            box-shadow: inset 0 0 15px #000;
-            margin-bottom: 15px;
+            background: #000000; color: #ffffff; padding: 15px 20px; 
+            border-radius: 4px; 
+            border: 3px solid #2ecc71; /* 画像に合わせた緑の枠線 */
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
             text-align: right;
         }
         
         .formula-display { 
-            font-size: 14px; color: #7f8c8d; font-family: 'Courier New', monospace;
+            font-size: 14px; color: #bdc3c7; font-family: 'Courier New', monospace;
             min-height: 1.2em; margin-bottom: 5px; word-break: break-all;
         }
-        .screen-label { font-size: 12px; color: #718093; margin-bottom: 5px; font-weight: bold; text-align: left; }
+        .screen-label { font-size: 12px; color: #95a5a6; margin-bottom: 5px; font-weight: bold; text-align: left; }
         .main-display { 
             font-size: 48px; font-family: 'Courier New', monospace; 
             min-height: 55px; letter-spacing: 2px;
         }
 
-        .control-section { width: 240px; }
+        .quantity-box { 
+            margin-top: 15px; padding: 10px 15px; background: #f5f6fa; 
+            border-radius: 8px; display: flex; align-items: center; justify-content: space-between;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input[type="number"] { width: 60px; font-size: 20px; text-align: center; border: 2px solid #bdc3c7; border-radius: 4px; }
 
-        /* グリッドを3列から4列に変更 */
+        .control-section { width: 100%; }
+
         .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         button { 
             height: 50px; border: none; border-radius: 6px; font-size: 18px; font-weight: bold;
@@ -53,28 +62,22 @@ $quantity = $_SESSION['quantity'] ?? 1;
         .btn-op { background: #3498db; color: white; box-shadow: 0 4px #2980b9; } 
         .btn-tax { background: #9b59b6; color: white; box-shadow: 0 4px #8e44ad; }
         .btn-equal { background: #7f8c8d; color: white; box-shadow: 0 4px #636e72; }
-        /* spanの指定を外し、1マス分のサイズに変更 */
         .btn-enter { background: #27ae60; color: white; box-shadow: 0 4px #219150; }
         
-        .quantity-box { 
-            margin-top: 20px; padding: 15px; background: #f5f6fa; 
-            border-radius: 8px; display: flex; align-items: center; justify-content: space-between;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
-        }
-        input[type="number"] { width: 60px; font-size: 20px; text-align: center; border: 2px solid #dcdde1; border-radius: 4px; }
     </style>
 </head>
 <body>
 
 <div class="pos-machine">
     <div class="display-section">
-        <h2 style="margin-top: -20px; margin-bottom: 40px; color: #2f3640; font-size: 50px;">YSEレジ</h2>
+        <h2 style="margin-top: 0; margin-bottom: 15px; color: #2f3640; font-size: 32px;">YSEレジ</h2>
         
         <div class="screen">
             <div class="screen-label">TOTAL</div>
             <div class="formula-display" id="formula-disp"></div>
             <div class="main-display" id="disp">0</div>
         </div>
+
         <div class="quantity-box">
             <span style="font-weight: bold; color: #2f3640;">数量:</span>
             <input type="number" id="qty-input" form="pos-form" name="quantity" value="<?= $quantity ?>" min="1">
@@ -208,7 +211,7 @@ $quantity = $_SESSION['quantity'] ?? 1;
             pushCurrentItem();
         }
         
-        // 末尾が演算子なら削除（100 * [税込] などのフリーズ防止）
+        // 末尾が演算子なら削除
         while (formulaParts.length > 0) {
             let last = formulaParts[formulaParts.length - 1];
             if (last === "+" || last === "*") {
