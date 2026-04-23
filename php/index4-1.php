@@ -40,7 +40,8 @@ $quantity = $_SESSION['quantity'] ?? 1;
 
         .control-section { width: 240px; }
 
-        .keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        /* グリッドを3列から4列に変更 */
+        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         button { 
             height: 50px; border: none; border-radius: 6px; font-size: 18px; font-weight: bold;
             cursor: pointer; background: #f5f6fa; box-shadow: 0 4px #bdc3c7; color: #2f3640;
@@ -52,7 +53,8 @@ $quantity = $_SESSION['quantity'] ?? 1;
         .btn-op { background: #3498db; color: white; box-shadow: 0 4px #2980b9; } 
         .btn-tax { background: #9b59b6; color: white; box-shadow: 0 4px #8e44ad; }
         .btn-equal { background: #7f8c8d; color: white; box-shadow: 0 4px #636e72; }
-        .btn-enter { background: #27ae60; color: white; box-shadow: 0 4px #219150; grid-column: span 3; margin-top: 5px; }
+        /* spanの指定を外し、1マス分のサイズに変更 */
+        .btn-enter { background: #27ae60; color: white; box-shadow: 0 4px #219150; }
         
         .quantity-box { 
             margin-top: 20px; padding: 15px; background: #f5f6fa; 
@@ -82,29 +84,27 @@ $quantity = $_SESSION['quantity'] ?? 1;
     <div class="control-section">
         <form id="pos-form" method="POST" action="process.php" onsubmit="return finalize()">
             <div class="keypad">
+                <button type="button" class="btn-ac" style="grid-column: span 2;" onclick="clearAll()">AC</button>
+                <button type="button" class="btn-tax" style="grid-column: span 2;" onclick="applyTax()">税込み</button>
+                
                 <button type="button" onclick="addNum('7')">7</button>
                 <button type="button" onclick="addNum('8')">8</button>
                 <button type="button" onclick="addNum('9')">9</button>
+                <button type="button" class="btn-op" onclick="handleOp('*')">×</button>
                 
                 <button type="button" onclick="addNum('4')">4</button>
                 <button type="button" onclick="addNum('5')">5</button>
                 <button type="button" onclick="addNum('6')">6</button>
+                <button type="button" class="btn-op" onclick="handleOp('+')">+</button>
                 
                 <button type="button" onclick="addNum('1')">1</button>
                 <button type="button" onclick="addNum('2')">2</button>
                 <button type="button" onclick="addNum('3')">3</button>
+                <button type="button" class="btn-equal" style="grid-row: span 2; height: 110px;" onclick="pressEqual()">＝</button>
                 
                 <button type="button" onclick="addNum('0')">0</button>
-                <button type="button" class="btn-c" onclick="clearLast()">C</button>
-                <button type="button" class="btn-ac" onclick="clearAll()">AC</button>
-                
-                <button type="button" class="btn-op" onclick="handleOp('*')">×</button>
-                <button type="button" class="btn-op" onclick="handleOp('+')">+</button>
-                <button type="button" class="btn-tax" onclick="applyTax()">税込</button>
-                
-                <button type="button" class="btn-equal" style="grid-column: span 3;" onclick="pressEqual()">＝</button>
-                
-                <button type="submit" class="btn-enter">確定 (SEND)</button>
+                <button type="button">売上</button>
+                <button type="submit" class="btn-enter">計上</button>
             </div>
             <input type="hidden" name="amount" id="hidden_amount" value="<?= $amount ?>">
         </form>
@@ -137,13 +137,6 @@ $quantity = $_SESSION['quantity'] ?? 1;
             if (currentVal === "" && n === "0") return;
             currentVal += n;
             updateDisplay(currentVal);
-        }
-    }
-
-    function clearLast() {
-        if (currentVal.length > 0) {
-            currentVal = currentVal.slice(0, -1);
-            updateDisplay(currentVal === "" ? runningTotal : currentVal);
         }
     }
 
