@@ -9,7 +9,7 @@ $quantity = $_SESSION['quantity'] ?? 1;
     <meta charset="UTF-8">
     <title>YSE POS System</title>
     <style>
-        body { background: #34495e; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Helvetica', sans-serif; }
+        body { background: #ffff; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; font-family: 'Helvetica', sans-serif; }
         
         .pos-machine { 
             background: #dcdde1; padding: 30px; border-radius: 15px; 
@@ -26,7 +26,7 @@ $quantity = $_SESSION['quantity'] ?? 1;
         .screen { 
             background: #000000; color: #ffffff; padding: 15px 20px; 
             border-radius: 4px; 
-            border: 3px solid #2ecc71; /* 画像に合わせた緑の枠線 */
+            border: 3px solid #a4cc2e; /* 画像に合わせた緑の枠線 */
             box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
             text-align: right;
         }
@@ -63,6 +63,9 @@ $quantity = $_SESSION['quantity'] ?? 1;
         .btn-tax { background: #9b59b6; color: white; box-shadow: 0 4px #8e44ad; }
         .btn-equal { background: #7f8c8d; color: white; box-shadow: 0 4px #636e72; }
         .btn-enter { background: #27ae60; color: white; box-shadow: 0 4px #219150; }
+        .btn-one { background: #274fae; color: white; box-shadow: 0 4px #219150; }
+
+
         
     </style>
 </head>
@@ -106,7 +109,7 @@ $quantity = $_SESSION['quantity'] ?? 1;
                 <button type="button" class="btn-equal" style="grid-row: span 2; height: 110px;" onclick="pressEqual()">＝</button>
                 
                 <button type="button" onclick="addNum('0')">0</button>
-                <button type="button">売上</button>
+                <button type="button" class="btn-one">売上</button>
                 <button type="submit" class="btn-enter">計上</button>
             </div>
             <input type="hidden" name="amount" id="hidden_amount" value="<?= $amount ?>">
