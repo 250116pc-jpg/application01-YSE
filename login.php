@@ -82,6 +82,7 @@ if (!empty($_POST)) {
             width: 80%; padding: 20px; background: #27ae60; color: white; 
             border: none; border-radius: 8px; font-size: 22px; font-weight: bold; 
             cursor: pointer; box-shadow: 0 5px #219150; 
+            margin-bottom: 50px;
         }
         .submit-btn:active { transform: translateY(3px); box-shadow: 0 2px #219150; }
 
