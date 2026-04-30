@@ -60,16 +60,21 @@ $_SESSION['amount'] = "";
     const form = document.getElementById('pos-form');
     
     let currentVal = "";
-    let runningTotal = <?= $amount ?: 0 ?>;
+    // PHPからの初期値読み込み
+    let initialAmount = "<?= ($amount ?: '0') ?>";
+    let runningTotal = BigInt(initialAmount); 
     let formulaParts = [];
     let isTaxApplied = false;
-    let preTaxTotal = 0; // ★追加：税抜きの金額を一時的に記憶する変数
+    //BigInt型に変換 →　初期値を文字列として扱い、後ろにｎをつける
+    let preTaxTotal = 0n; 
+
+    const MAX_DIGITS = 18; // 👈追加　変数で文字数の限界を設定。
 
     function updateDisplay(val) {
-        let num = parseInt(val);
-        if (isNaN(num)) num = 0;
-        disp.innerText = num;
-        hiddenInput.value = num;
+        //val.toString()BigIntがparseIntできないため、toString()で変換
+        let strVal = val.toString();
+        disp.innerText = strVal === "" ? "0" : strVal;
+        hiddenInput.value = strVal;
     }
 
     function addNum(n) {
@@ -83,35 +88,51 @@ $_SESSION['amount'] = "";
 
     function clearAll() {
         currentVal = "";
-        runningTotal = 0;
+        runningTotal = 0n; //0n
         formulaParts = [];
         isTaxApplied = false;
-        preTaxTotal = 0; // ★追加
+        preTaxTotal = 0n; //0n
         opInd.innerText = "";
-        updateDisplay(0);
+        updateDisplay(0n); //0n
     }
 
     function pushCurrentItem() {
-        let price = parseInt(currentVal);
-        if (!isNaN(price)) {
-            if (formulaParts.length === 0) {
-                runningTotal = price;
-            } else {
-                let lastOp = formulaParts[formulaParts.length - 1];
-                if (lastOp === "+") runningTotal += price;
-                if (lastOp === "*") runningTotal *= price;
-            }
-            formulaParts.push(price);
+        if (currentVal === "") return;
+        //☟単純に値がばかでかいので、BigIntに変換する
+        let price = BigInt(currentVal);
+        let nextTotal = runningTotal; // 計算後の値を保持
+
+        if (formulaParts.length === 0) {
+            nextTotal = price;
+        } else {
+            let lastOp = formulaParts[formulaParts.length - 1];
+            if (lastOp === "+") nextTotal += price;
+            if (lastOp === "*") nextTotal *= price;
         }
+
+        // ☟追加　最大桁を超えたら、アラートを出す☟18字数を超え。
+        if (nextTotal.toString().length > MAX_DIGITS) {
+            alert("桁数が大きすぎます。");
+            // ☟更新はしない。currentVal = "";は前の処理を継続する
+            currentVal = ""; 
+            return false; // 失敗を知らせる
+        }
+
+        // 成功したらそのままなので、 runningTotalを更新する。それ以外はfalse
+        runningTotal = nextTotal;
+        formulaParts.push(price);
         currentVal = "";
+        return true; // 成功
     }
 
     function handleOp(op) {
         if (currentVal !== "") {
-            pushCurrentItem();
+            // 計算がfalseなら、計算はリセットされ、手前までリセット。四則演算はなし。
+            if (!pushCurrentItem()) return; 
         } else if (formulaParts.length > 0) {
             let last = formulaParts[formulaParts.length-1];
-            if (last === "+" || last === "*") formulaParts.pop();
+            // 演算子と判定☟
+            if (typeof last === 'string') formulaParts.pop();
         } else {
             return;
         }
@@ -132,19 +153,28 @@ $_SESSION['amount'] = "";
         updateDisplay(runningTotal);
     }
 
-    // ★変更：税込みのオン・オフを切り替えられるようにしました
     function applyTax() {
-        if (currentVal !== "") pressEqual();
+        if (currentVal !== "") {
+            //税込み押したときに、桁数オーバーをキャンセル。
+            if (!pushCurrentItem()) return;
+        }
         
-        if (!isTaxApplied && runningTotal > 0) {
-            preTaxTotal = runningTotal; // 元の金額を記憶
-            runningTotal = Math.round(runningTotal * 1.1);
-            //floorからroundへ
+        if (!isTaxApplied && runningTotal > 0n) {
+            // BigIntは、1.1は使えないらしい？　11/10でできるらしい。
+            let taxTotal = (runningTotal * 11n + 5n) / 10n;
+
+            // 税込計算でもチェック
+            if (taxTotal.toString().length > MAX_DIGITS) {
+                alert("税込金額が大きすぎます。");
+                return;
+            }
+
+            preTaxTotal = runningTotal;
+            runningTotal = taxTotal;
             isTaxApplied = true;
             opInd.innerText = "税込";
             updateDisplay(runningTotal);
         } else if (isTaxApplied) {
-            // すでに税込みなら、記憶しておいた元の金額に戻す
             runningTotal = preTaxTotal;
             isTaxApplied = false;
             opInd.innerText = "";
@@ -158,9 +188,10 @@ $_SESSION['amount'] = "";
         form.submit();
     }
 
-    // 初期表示
     updateDisplay(runningTotal);
 </script>
 
 </body>
 </html>
+
+
