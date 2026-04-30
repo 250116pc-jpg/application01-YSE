@@ -137,7 +137,7 @@ $_SESSION['amount'] = "";
         
         if (!isTaxApplied && runningTotal > 0) {
             preTaxTotal = runningTotal; // 元の金額を記憶
-            runningTotal = Math.floor(runningTotal * 1.1);
+            runningTotal = Math.round(runningTotal * 1.1);
             isTaxApplied = true;
             opInd.innerText = "税込";
             updateDisplay(runningTotal);
