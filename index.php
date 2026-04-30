@@ -1,6 +1,7 @@
 <?php
 session_start();
 $amount = $_SESSION['amount'] ?? '';
+$_SESSION['amount'] = "";
 ?>
 <!DOCTYPE html>
 <html lang="ja">
