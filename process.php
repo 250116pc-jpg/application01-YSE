@@ -1,4 +1,3 @@
-
 <?php
 session_start();
 
@@ -27,18 +26,39 @@ if (isset($_POST['quantity'])) {
 // 3. アクション処理
 if (isset($_POST['action'])) {
     switch ($_POST['action']) {
+        
         case 'calc':
-            $amount = (int)($_SESSION['amount'] ?: 0);
-            $quantity = (int)$_SESSION['quantity'];
+            $customer_id = 1; // ※現在はテスト用に固定
+            $total = 0;
 
-            // 掛け算を実行
-            $total = $amount * $quantity;
+            // データベース接続
+            $dsn = 'mysql:dbname=yse_pos_db;host=localhost;charset=utf8mb4';
+            $user = 'root'; 
+            $password = ''; 
+
+            try {
+                $pdo = new PDO($dsn, $user, $password, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+                ]);
+
+                // salesテーブルから、この顧客のamountの合計（SUM）を取得
+                $sql = "SELECT SUM(amount) FROM sales WHERE customer_id = ?";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$customer_id]);
+                
+                // 取得した合計金額を変数に入れる（何もデータがない場合は0になる）
+                $total = (int)$stmt->fetchColumn();
+
+            } catch (PDOException $e) {
+                error_log("売上計算エラー: " . $e->getMessage());
+            }
 
             // 桁あふれ対策：9桁（MAX_VALUE）を超えたら最大値に固定
             if ($total > MAX_VALUE) {
                 $total = MAX_VALUE;
             }
 
+            // 取得した合計を画面表示用セッションにセット
             $_SESSION['amount'] = (string)$total;
             break;
 
@@ -47,16 +67,16 @@ if (isset($_POST['action'])) {
             $_SESSION['quantity'] = 1;
             break;
 
-        // ★ 新規追加：計上ボタンが押された時のデータベース保存処理 ★
+        //↓ここから、、売上表示
         case 'keijo':
             $amount = (int)($_SESSION['amount'] ?: 0);
-            $customer_id = 1; // ※仕様に沿って顧客IDを取得、テスト用は固定値
+            $customer_id = 1; // ※現在はテスト用に固定
 
             if ($amount > 0) {
-                // データベース接続設定（ローカルの yse_pos_db を想定）
+                // データベース接続
                 $dsn = 'mysql:dbname=yse_pos_db;host=localhost;charset=utf8mb4';
-                $user = 'root'; // XAMPP等のデフォルト
-                $password = ''; // XAMPP等のデフォルト
+                $user = 'root'; 
+                $password = ''; 
 
                 try {
                     $pdo = new PDO($dsn, $user, $password, [
@@ -68,12 +88,11 @@ if (isset($_POST['action'])) {
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute([$customer_id, $amount]);
 
-                    // 保存が成功したら、次の入力のためにセッションをクリアする
+                    // 保存が成功したら、次の入力のために画面の数字を初期化
                     $_SESSION['amount'] = '';
                     $_SESSION['quantity'] = 1;
                     
                 } catch (PDOException $e) {
-                    // DB接続や保存に失敗した場合のエラーログ出力
                     error_log("計上エラー: " . $e->getMessage());
                 }
             }
