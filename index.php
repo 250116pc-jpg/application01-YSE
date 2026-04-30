@@ -74,7 +74,7 @@ $_SESSION['amount'] = "";
 
     function addNum(n) {
         if (isTaxApplied) return;
-        if (currentVal.length < 8) {
+        if (currentVal.length < 9) {
             if (currentVal === "" && n === "0") return;
             currentVal += n;
             updateDisplay(currentVal);
@@ -139,6 +139,7 @@ $_SESSION['amount'] = "";
         if (!isTaxApplied && runningTotal > 0) {
             preTaxTotal = runningTotal; // 元の金額を記憶
             runningTotal = Math.round(runningTotal * 1.1);
+            //floorからroundへ
             isTaxApplied = true;
             opInd.innerText = "税込";
             updateDisplay(runningTotal);
