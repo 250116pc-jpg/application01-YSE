@@ -74,7 +74,7 @@ $_SESSION['amount'] = "";
 
     function addNum(n) {
         if (isTaxApplied) return;
-        if (currentVal.length < 9) {
+        if (currentVal.length < 8) {
             if (currentVal === "" && n === "0") return;
             currentVal += n;
             updateDisplay(currentVal);
