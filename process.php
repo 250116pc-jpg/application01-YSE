@@ -27,7 +27,7 @@ try {
     $pdo = new PDO($dsn, $user, $password, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 
     if ($action === 'calc') {
-        // ↓ここ追加　SQLから。created_atで日付を　件数は改造？
+        // ↓ここ追加　SQLから。created_atで日付を　件数は改造？ MAX(created_at)で最大日付。FROMで同じ日付がとれるようにsalesからid参照。
         $sql = "
             SELECT SUM(amount) 
             FROM sales 
