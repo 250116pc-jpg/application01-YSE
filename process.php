@@ -73,7 +73,7 @@ try {
             setNotice('商品IDを入力してください。', 'error');
             redirectToRegister();
         }
-        $itemId = max(1, min(999999, (int)$rawItemId));
+        $itemId = max(0, min(999999, (int)$rawItemId)); //max(1, min(～))となっており、1より小さい整数値を入力したら、1のにんじんが出力されるようになったので、エラー☟が起きるように、0に修正。
         $stmt = $pdo->prepare('SELECT id, name, price, stock FROM items WHERE id = ?');
         $stmt->execute([$itemId]);
         $item = $stmt->fetch();
