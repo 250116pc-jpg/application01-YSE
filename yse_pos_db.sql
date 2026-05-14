@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- ホスト: 127.0.0.1
--- 生成日時: 2026-04-23 14:34:11
+-- 生成日時: 2026-05-14 13:22:25
 -- サーバのバージョン： 10.4.32-MariaDB
 -- PHP のバージョン: 8.2.12
 
@@ -24,14 +24,39 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- テーブルの構造 `items`
+--
+
+CREATE TABLE `items` (
+  `id` int(11) NOT NULL,
+  `name` text NOT NULL,
+  `price` int(11) NOT NULL,
+  `stock` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- テーブルのデータのダンプ `items`
+--
+
+INSERT INTO `items` (`id`, `name`, `price`, `stock`) VALUES
+(1, 'にんじん', 350, 13),
+(2, 'じゃがいも', 300, 12),
+(3, 'たまねぎ', 380, 18),
+(4, 'トマト', 400, 10),
+(5, '消臭力', 750, 9),
+(6, '豚肉', 350, 13);
+
+-- --------------------------------------------------------
+
+--
 -- テーブルの構造 `sales`
 --
 
 CREATE TABLE `sales` (
   `id` int(11) NOT NULL COMMENT '売上ID',
   `customer_id` int(11) NOT NULL COMMENT '顧客ID',
-  `amount` int(11) NOT NULL COMMENT '売上金額',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '売上日時'
+  `amount` double NOT NULL COMMENT '計上額',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp() COMMENT '計上日時'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -39,10 +64,49 @@ CREATE TABLE `sales` (
 --
 
 INSERT INTO `sales` (`id`, `customer_id`, `amount`, `created_at`) VALUES
-(1, 1, 66, '2026-04-23 01:00:20'),
-(2, 1, 55, '2026-04-23 01:14:18'),
-(3, 1, 4446222, '2026-04-23 05:17:26'),
-(4, 1, 32, '2026-04-23 05:21:50');
+(9, 1, 32, '2026-04-30 02:43:11'),
+(10, 1, 20608, '2026-04-30 02:43:21'),
+(11, 1, 220, '2026-04-30 02:45:25'),
+(12, 1, 61, '2026-04-30 02:52:17'),
+(13, 1, 20921, '2026-05-14 00:19:59'),
+(14, 1, 23013, '2026-05-14 00:20:49'),
+(15, 1, 637, '2026-05-14 01:23:19');
+
+-- --------------------------------------------------------
+
+--
+-- テーブルの構造 `sale_items`
+--
+
+CREATE TABLE `sale_items` (
+  `id` int(11) NOT NULL,
+  `sale_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `item_name` varchar(255) NOT NULL,
+  `unit_price` int(11) NOT NULL,
+  `quantity` int(11) NOT NULL,
+  `discount` int(11) NOT NULL DEFAULT 0,
+  `subtotal` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- テーブルの構造 `settings`
+--
+
+CREATE TABLE `settings` (
+  `key` varchar(50) NOT NULL,
+  `value` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- テーブルのデータのダンプ `settings`
+--
+
+INSERT INTO `settings` (`key`, `value`) VALUES
+('tax_rate', '10');
 
 -- --------------------------------------------------------
 
@@ -63,17 +127,38 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `user_id`, `password_hash`, `role`, `created_at`) VALUES
-(1, '1234', '$2y$10$id/Be/U5tlqWQJ3AO7n3SO5tVOZOTgNjxNYewdBbiZcXsIxVFIzam', 0, '2026-04-23 05:16:55');
+(1, '1234', '$2y$10$id/Be/U5tlqWQJ3AO7n3SO5tVOZOTgNjxNYewdBbiZcXsIxVFIzam', 0, '2026-04-23 05:16:55'),
+(2, 'admin', '$2y$10$MGM/cWKfPcThDTc/SnNzHOjdnpPI8EoLXmWcVQUokUUNkKjBIysqa', 1, '2026-05-14 13:22:25');
 
 --
 -- ダンプしたテーブルのインデックス
 --
 
 --
+-- テーブルのインデックス `items`
+--
+ALTER TABLE `items`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- テーブルのインデックス `sales`
 --
 ALTER TABLE `sales`
   ADD PRIMARY KEY (`id`);
+
+--
+-- テーブルのインデックス `sale_items`
+--
+ALTER TABLE `sale_items`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `sale_id` (`sale_id`),
+  ADD KEY `item_id` (`item_id`);
+
+--
+-- テーブルのインデックス `settings`
+--
+ALTER TABLE `settings`
+  ADD PRIMARY KEY (`key`);
 
 --
 -- テーブルのインデックス `users`
@@ -87,16 +172,28 @@ ALTER TABLE `users`
 --
 
 --
+-- テーブルの AUTO_INCREMENT `items`
+--
+ALTER TABLE `items`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
 -- テーブルの AUTO_INCREMENT `sales`
 --
 ALTER TABLE `sales`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '売上ID', AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '売上ID', AUTO_INCREMENT=16;
+
+--
+-- テーブルの AUTO_INCREMENT `sale_items`
+--
+ALTER TABLE `sale_items`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- テーブルの AUTO_INCREMENT `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

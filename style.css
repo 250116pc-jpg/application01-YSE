@@ -1,154 +1,528 @@
-body {
-    font-family: sans-serif;
-    background-color: #fff;
-    padding: 30px;
-    margin: 0;
+:root {
+    --ink: #20242c;
+    --muted: #667085;
+    --line: #d7dce3;
+    --panel: #ffffff;
+    --page: #eef2f5;
+    --screen: #101820;
+    --green: #1f9d55;
+    --blue: #2563eb;
+    --red: #d92d20;
+    --amber: #d97706;
 }
 
-.pos-machine {
-    width: 280px;
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Segoe UI", "Yu Gothic", sans-serif;
+    color: var(--ink);
+    background: var(--page);
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button,
+.top-actions a {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+    transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, border-color 160ms ease;
+}
+
+button {
+    padding: 12px 14px;
+    font-weight: 700;
+}
+
+button:hover,
+.top-actions a:hover {
+    border-color: #9aa7b8;
+    box-shadow: 0 8px 18px rgba(32, 36, 44, 0.12);
+    transform: translateY(-1px);
+}
+
+button:active,
+button.pressed,
+.top-actions a:active {
+    transform: translateY(1px) scale(0.98);
+    box-shadow: none;
+}
+
+input,
+select {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 11px 12px;
+    background: #fff;
+}
+
+label {
+    display: grid;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 24px clamp(16px, 4vw, 48px);
+}
+
+h1,
+h2,
+h3,
+p {
+    margin-top: 0;
 }
 
 h1 {
-    font-size: 28px;
-    margin: 0 0 15px 0;
-    font-weight: bold;
-    color: #000;
+    margin-bottom: 0;
+    font-size: clamp(28px, 4vw, 44px);
+}
+
+h2 {
+    margin-bottom: 16px;
+    font-size: 22px;
+}
+
+.eyebrow {
+    margin-bottom: 4px;
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+.top-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.top-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 14px;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.notice {
+    margin: 0 clamp(16px, 4vw, 48px) 16px;
+    padding: 13px 16px;
+    border-radius: 8px;
+    border: 1px solid #b7c7dc;
+    background: #e8f1ff;
+    color: #16427a;
+    font-weight: 700;
+}
+
+.notice.success {
+    border-color: #9fd3b5;
+    background: #e8f7ee;
+    color: #16613a;
+}
+
+.notice.error {
+    border-color: #f0a7a1;
+    background: #fff0ef;
+    color: #9d271d;
+}
+
+.pos-layout,
+.admin-layout {
+    width: min(1180px, calc(100% - 32px));
+    margin: 0 auto 40px;
+}
+
+.pos-layout {
+    display: grid;
+    grid-template-columns: minmax(300px, 430px) 1fr;
+    gap: 22px;
+    align-items: start;
+}
+
+.register-panel,
+.receipt-panel,
+.admin-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 18px;
+    box-shadow: 0 12px 30px rgba(32, 36, 44, 0.08);
 }
 
 .screen {
     position: relative;
-    background-color: #000;
-    border: 3px solid #32cd32;
+    min-height: 92px;
+    margin-bottom: 18px;
+    padding: 34px 18px 14px;
+    border: 3px solid #38d996;
+    border-radius: 8px;
+    background: var(--screen);
     color: #fff;
     text-align: right;
-    padding: 22px 10px 8px 10px;
-    font-size: 24px;
-    margin-bottom: 20px;
-    min-height: 60px;
-    box-sizing: border-box;
 }
 
 .op-indicator {
     position: absolute;
-    top: 5px;
-    right: 10px;
-    font-size: 14px;
-    color: #ccc;
-    min-height: 14px;
+    top: 10px;
+    right: 14px;
+    color: #b9c6d3;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+#disp {
+    overflow: hidden;
+    min-height: 38px;
+    font-size: 34px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.scan-form {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.scan-row {
+    display: grid;
+    grid-template-columns: 1fr 100px;
+    gap: 10px;
+}
+
+.hint,
+.empty {
+    color: var(--muted);
+    font-size: 13px;
 }
 
 .keypad {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 5px;
+    gap: 8px;
 }
 
-button {
-    background-color: #f0f0f0;
-    border: 1px solid #aaa;
-    padding: 15px 0;
-    font-size: 16px;
-    cursor: pointer;
-    box-sizing: border-box;
-    border-radius: 2px;
-}
-
-button:hover {
-    background-color: #e5e5e5;
-}
-
-button:active {
-    background-color: #dcdcdc;
+.product-keypad {
+    margin-bottom: 18px;
 }
 
 .span-2 {
     grid-column: span 2;
 }
 
-.btn-equal {
-    grid-row: span 2;
-    height: 100%;
+.primary-btn {
+    border-color: var(--green);
+    background: var(--green);
+    color: #fff;
 }
 
-/* =========================================
-   ログイン画面 (login.php) 用の追加スタイル
-   (レジのレイアウトに合わせるための設定)
-========================================= */
-.login-lead {
-    font-size: 14px;
-    margin-bottom: 20px;
-    color: #333;
+.accent-btn {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: #fff;
 }
 
-.login-lead a {
-    color: #0066cc;
+.danger-btn {
+    border-color: var(--red);
+    background: var(--red);
+    color: #fff;
 }
 
-.login-error {
-    color: red;
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 10px;
+.danger-soft {
+    border-color: #fac5bf;
+    background: #fff2f1;
+    color: var(--red);
 }
 
-.login-form dl {
-    margin: 0;
-    padding: 0;
+.camera-box {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 18px;
 }
 
-.login-form dt {
-    font-size: 14px;
-    font-weight: bold;
-    margin-top: 15px;
-    margin-bottom: 5px;
+.camera-box[hidden] {
+    display: none;
 }
 
-.login-form dd {
-    margin: 0;
-}
-
-.login-form input[type="text"],
-.login-form input[type="password"] {
+.camera-box video {
     width: 100%;
-    box-sizing: border-box;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #aaa;
-    border-radius: 2px;
+    aspect-ratio: 4 / 3;
+    border-radius: 8px;
+    background: #111;
 }
 
-.checkbox-wrap {
-    font-size: 14px;
-    margin-top: 5px;
+.catalog {
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
 }
 
-.checkbox-wrap label {
-    cursor: pointer;
+.item-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
 }
 
-/* ログインボタンをレジのボタンデザインに合わせる */
-.login-btn-wrap {
-    margin-top: 25px;
-    display: grid; 
-}
-
-.btn-submit {
-    background-color: #f0f0f0;
-    border: 1px solid #aaa;
-    padding: 15px 0;
-    font-size: 16px;
-    cursor: pointer;
-    box-sizing: border-box;
-    border-radius: 2px;
+.item-tile button {
     width: 100%;
-    font-weight: bold;
+    min-height: 104px;
+    display: grid;
+    gap: 5px;
+    text-align: left;
 }
 
-.btn-submit:hover {
-    background-color: #e5e5e5;
+.item-id {
+    color: var(--amber);
+    font-size: 12px;
+    font-weight: 800;
 }
 
-.btn-submit:active {
-    background-color: #dcdcdc;
+.receipt-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+}
+
+.count-badge {
+    min-width: 62px;
+    padding: 9px 12px;
+    border-radius: 999px;
+    background: #fff7ed;
+    color: #9a4b00;
+    text-align: center;
+    font-weight: 800;
+}
+
+.receipt-lines {
+    display: grid;
+    gap: 10px;
+}
+
+.receipt-line {
+    display: grid;
+    grid-template-columns: 1.4fr 80px 110px 100px auto;
+    gap: 10px;
+    align-items: end;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fafbfc;
+}
+
+.line-main {
+    display: grid;
+    gap: 3px;
+}
+
+.line-total {
+    align-self: center;
+    text-align: right;
+    font-size: 18px;
+}
+
+.line-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.totals {
+    display: grid;
+    gap: 10px;
+    margin: 18px 0;
+    padding-top: 16px;
+    border-top: 2px solid var(--line);
+}
+
+.totals div {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.grand-total {
+    font-size: 26px;
+}
+
+.receipt-actions {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.receipt-actions form,
+.receipt-actions button {
+    width: 100%;
+}
+
+.last-receipt {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+}
+
+.admin-layout {
+    display: grid;
+    gap: 18px;
+}
+
+.hero-admin {
+    background: #f7fbff;
+}
+
+.inline-form {
+    display: grid;
+    grid-template-columns: minmax(180px, 260px) 120px;
+    gap: 12px;
+    align-items: end;
+}
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.metric-grid div {
+    display: grid;
+    gap: 6px;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fbfcfe;
+}
+
+.metric-grid span {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.metric-grid strong {
+    font-size: 24px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 11px 10px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    white-space: nowrap;
+}
+
+th {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.user-list {
+    display: grid;
+    gap: 10px;
+}
+
+.user-row {
+    display: grid;
+    grid-template-columns: 1.2fr 230px 300px auto;
+    gap: 10px;
+    align-items: end;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fbfcfe;
+}
+
+.user-row > div:first-child {
+    display: grid;
+    gap: 5px;
+}
+
+.user-row span {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.mini-form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+}
+
+@media (max-width: 900px) {
+    .app-header,
+    .pos-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .app-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .receipt-line,
+    .user-row,
+    .metric-grid,
+    .receipt-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .line-total {
+        text-align: left;
+    }
+}
+
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .receipt-panel,
+    .receipt-panel * {
+        visibility: visible;
+    }
+
+    .receipt-panel {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        border: 0;
+        box-shadow: none;
+    }
+
+    .receipt-actions,
+    .top-actions,
+    .app-header,
+    .notice {
+        display: none;
+    }
 }

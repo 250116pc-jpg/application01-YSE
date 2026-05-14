@@ -1,105 +1,218 @@
 <?php
 session_start();
+require_once 'db.php';
 
-// 最大値の定義（9桁：9億9999万9999）
-define('MAX_DIGITS', 9);
-define('MAX_VALUE', 999999999);
-
-// セッションの初期化
-if (!isset($_SESSION['amount'])) $_SESSION['amount'] = '';
-if (!isset($_SESSION['quantity'])) $_SESSION['quantity'] = 1;
-
-// 1. 数字入力処理（JSから送られてきた最終的な計算結果を受け取る）
-if (isset($_POST['amount'])) {
-    $input_amount = $_POST['amount'];
-    
-    // 数値以外を除去し、最大桁数でカット
-    $clean_amount = preg_replace('/[^0-9]/', '', $input_amount);
-    $_SESSION['amount'] = substr($clean_amount, 0, MAX_DIGITS);
+function redirectToRegister()
+{
+    header('Location: index.php');
+    exit;
 }
 
-// 2. 個数更新
-if (isset($_POST['quantity'])) {
-    $_SESSION['quantity'] = max(1, (int)$_POST['quantity']);
+function setNotice($message, $type = 'info')
+{
+    $_SESSION['notice'] = [
+        'message' => $message,
+        'type' => $type,
+    ];
 }
 
-// 3. アクション処理
-if (isset($_POST['action'])) {
-    switch ($_POST['action']) {
-        
-        case 'calc':
-            $customer_id = 1; // ※現在はテスト用に固定
-            $total = 0;
+function getCart()
+{
+    return $_SESSION['cart'] ?? [];
+}
 
-            // データベース接続
-            $dsn = 'mysql:dbname=yse_pos_db;host=localhost;charset=utf8mb4';
-            $user = 'root'; 
-            $password = ''; 
+function setCart(array $cart)
+{
+    $_SESSION['cart'] = array_values($cart);
+}
 
-            try {
-                $pdo = new PDO($dsn, $user, $password, [
-                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-                ]);
+function rememberCart()
+{
+    $_SESSION['undo_cart'] = getCart();
+}
 
-                // salesテーブルから、この顧客のamountの合計（SUM）を取得
-                $sql = "SELECT SUM(amount) FROM sales WHERE customer_id = ?";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([$customer_id]);
-                
-                // 取得した合計金額を変数に入れる（何もデータがない場合は0になる）
-                $total = (int)$stmt->fetchColumn();
-
-            } catch (PDOException $e) {
-                error_log("売上計算エラー: " . $e->getMessage());
-            }
-
-            // 桁あふれ対策：9桁（MAX_VALUE）を超えたら最大値に固定
-            if ($total > MAX_VALUE) {
-                $total = MAX_VALUE;
-            }
-
-            // 取得した合計を画面表示用セッションにセット
-            $_SESSION['amount'] = (string)$total;
-            break;
-
-        case 'clear':
-            $_SESSION['amount'] = '';
-            $_SESSION['quantity'] = 1;
-            break;
-
-        //↓ここから、、売上表示
-        case 'keijo':
-            $amount = (int)($_SESSION['amount'] ?: 0);
-            $customer_id = 1; // ※現在はテスト用に固定
-
-            if ($amount > 0) {
-                // データベース接続
-                $dsn = 'mysql:dbname=yse_pos_db;host=localhost;charset=utf8mb4';
-                $user = 'root'; 
-                $password = ''; 
-
-                try {
-                    $pdo = new PDO($dsn, $user, $password, [
-                        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-                    ]);
-
-                    // 売上情報を sales テーブルに保存（INSERT）
-                    $sql = "INSERT INTO sales (customer_id, amount) VALUES (?, ?)";
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->execute([$customer_id, $amount]);
-
-                    // 保存が成功したら、次の入力のために画面の数字を初期化
-                    $_SESSION['amount'] = '';
-                    $_SESSION['quantity'] = 1;
-                    
-                } catch (PDOException $e) {
-                    error_log("計上エラー: " . $e->getMessage());
-                }
-            }
-            break;
+function cartSubtotal(array $cart)
+{
+    $subtotal = 0;
+    foreach ($cart as $line) {
+        $lineTotal = ((int)$line['price'] * (int)$line['quantity']) - (int)$line['discount'];
+        $subtotal += max(0, $lineTotal);
     }
+    return $subtotal;
 }
 
-// index.phpへ戻る
-header("Location: index.php");
-exit;
+function cartTotalWithTax(array $cart, $taxRate)
+{
+    $subtotal = cartSubtotal($cart);
+    return (int)floor($subtotal * (1 + ($taxRate / 100)));
+}
+
+function cleanInt($value, $min = 0, $max = 999999999)
+{
+    $value = preg_replace('/[^0-9]/', '', (string)$value);
+    if ($value === '') {
+        return $min;
+    }
+    return max($min, min($max, (int)$value));
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    redirectToRegister();
+}
+
+$action = $_POST['action'] ?? '';
+
+try {
+    $pdo = getPdo();
+    ensureAppSchema($pdo);
+    $taxRate = getTaxRate($pdo);
+
+    if ($action === 'add_item') {
+        $rawItemId = preg_replace('/[^0-9]/', '', (string)($_POST['item_id'] ?? ''));
+        if ($rawItemId === '') {
+            setNotice('商品IDを入力してください。', 'error');
+            redirectToRegister();
+        }
+        $itemId = max(1, min(999999, (int)$rawItemId));
+        $stmt = $pdo->prepare('SELECT id, name, price, stock FROM items WHERE id = ?');
+        $stmt->execute([$itemId]);
+        $item = $stmt->fetch();
+
+        if (!$item) {
+            setNotice('商品ID ' . $itemId . ' は見つかりません。', 'error');
+            redirectToRegister();
+        }
+
+        if ((int)$item['stock'] <= 0) {
+            setNotice($item['name'] . ' は在庫がありません。', 'error');
+            redirectToRegister();
+        }
+
+        rememberCart();
+        $cart = getCart();
+        $found = false;
+        foreach ($cart as &$line) {
+            if ((int)$line['item_id'] === (int)$item['id'] && (int)$line['discount'] === 0) {
+                $line['quantity']++;
+                $found = true;
+                break;
+            }
+        }
+        unset($line);
+
+        if (!$found) {
+            $cart[] = [
+                'item_id' => (int)$item['id'],
+                'name' => $item['name'],
+                'price' => (int)$item['price'],
+                'quantity' => 1,
+                'discount' => 0,
+            ];
+        }
+        setCart($cart);
+        setNotice($item['name'] . ' を追加しました。');
+
+    } elseif ($action === 'update_line') {
+        $index = cleanInt($_POST['line_index'] ?? '', 0, 999);
+        $quantity = cleanInt($_POST['quantity'] ?? 1, 1, 99);
+        $discount = cleanInt($_POST['discount'] ?? 0, 0, 999999);
+        $cart = getCart();
+
+        if (isset($cart[$index])) {
+            rememberCart();
+            $maxDiscount = (int)$cart[$index]['price'] * $quantity;
+            $cart[$index]['quantity'] = $quantity;
+            $cart[$index]['discount'] = min($discount, $maxDiscount);
+            setCart($cart);
+            setNotice('レシート明細を更新しました。');
+        }
+
+    } elseif ($action === 'remove_line') {
+        $index = cleanInt($_POST['line_index'] ?? '', 0, 999);
+        $cart = getCart();
+        if (isset($cart[$index])) {
+            rememberCart();
+            $removed = $cart[$index]['name'];
+            unset($cart[$index]);
+            setCart($cart);
+            setNotice($removed . ' を取り消しました。');
+        }
+
+    } elseif ($action === 'undo') {
+        if (isset($_SESSION['undo_cart'])) {
+            $_SESSION['cart'] = $_SESSION['undo_cart'];
+            unset($_SESSION['undo_cart']);
+            setNotice('ひとつ前の状態に戻しました。');
+        } else {
+            setNotice('戻せる操作がありません。', 'error');
+        }
+
+    } elseif ($action === 'clear_cart') {
+        rememberCart();
+        unset($_SESSION['cart']);
+        setNotice('レシートを空にしました。');
+
+    } elseif ($action === 'sales_total') {
+        $stmt = $pdo->query('SELECT COALESCE(SUM(amount), 0) FROM sales WHERE DATE(created_at) = CURDATE()');
+        $_SESSION['sales_message'] = '本日の売上合計: ' . number_format((int)$stmt->fetchColumn()) . '円';
+
+    } elseif ($action === 'checkout') {
+        $cart = getCart();
+        if (!$cart) {
+            setNotice('商品が入っていません。', 'error');
+            redirectToRegister();
+        }
+
+        $subtotal = cartSubtotal($cart);
+        $total = cartTotalWithTax($cart, $taxRate);
+        $customerId = (int)($_SESSION['user_db_id'] ?? 1);
+
+        $pdo->beginTransaction();
+        $stmt = $pdo->prepare('INSERT INTO sales (customer_id, amount) VALUES (?, ?)');
+        $stmt->execute([$customerId, $total]);
+        $saleId = (int)$pdo->lastInsertId();
+
+        $itemStmt = $pdo->prepare('
+            INSERT INTO sale_items
+                (sale_id, item_id, item_name, unit_price, quantity, discount, subtotal)
+            VALUES
+                (?, ?, ?, ?, ?, ?, ?)
+        ');
+        $stockStmt = $pdo->prepare('UPDATE items SET stock = GREATEST(stock - ?, 0) WHERE id = ?');
+
+        foreach ($cart as $line) {
+            $lineSubtotal = max(0, ((int)$line['price'] * (int)$line['quantity']) - (int)$line['discount']);
+            $itemStmt->execute([
+                $saleId,
+                (int)$line['item_id'],
+                $line['name'],
+                (int)$line['price'],
+                (int)$line['quantity'],
+                (int)$line['discount'],
+                $lineSubtotal,
+            ]);
+            $stockStmt->execute([(int)$line['quantity'], (int)$line['item_id']]);
+        }
+
+        $pdo->commit();
+
+        $_SESSION['last_receipt'] = [
+            'sale_id' => $saleId,
+            'cart' => $cart,
+            'subtotal' => $subtotal,
+            'tax_rate' => $taxRate,
+            'total' => $total,
+            'created_at' => date('Y-m-d H:i:s'),
+        ];
+        unset($_SESSION['cart'], $_SESSION['undo_cart']);
+        setNotice('計上しました。レシート印刷データを作成しました。', 'success');
+    }
+} catch (PDOException $e) {
+    if (isset($pdo) && $pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    error_log('POS処理エラー: ' . $e->getMessage());
+    setNotice('データベース処理でエラーが発生しました。', 'error');
+}
+
+redirectToRegister();
