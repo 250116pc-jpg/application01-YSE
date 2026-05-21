@@ -14,6 +14,7 @@ $registered = isset($_GET['registered']) && $_GET['registered'] == 1;
 if (!empty($_POST)) {
     $user_id = trim($_POST['user_id'] ?? '');
     $password = $_POST['password'] ?? '';
+    $submit_type = $_POST['submit_type'] ?? 'user'; // 'user' か 'admin'
 
     if ($user_id === "" || $password === "") {
         $error = "IDとパスワードを入力してください。";
@@ -30,21 +31,36 @@ if (!empty($_POST)) {
             $user = $stmt->fetch();
 
             if ($user && password_verify($password, $user['password_hash'])) {
-                $_SESSION['role'] = (int)$user['role'];
-                $_SESSION['user_db_id'] = $user['id'];
-                $_SESSION['login_user_id'] = $user['user_id'];
+                $user_role = (int)$user['role'];
 
-                if ((int)$user['role'] === 1) {
-                    header('Location: admin_menu.php');
+                if ($submit_type === 'admin') {
+                    // 管理者としてログインボタンが押された場合
+                    if ($user_role !== 1) {
+                        $error = "このIDには管理者権限がありません。";
+                    } else {
+                        $_SESSION['role'] = $user_role;
+                        $_SESSION['user_db_id'] = $user['id'];
+                        $_SESSION['login_user_id'] = $user['user_id'];
+                        header('Location: admin_menu.php');
+                        exit();
+                    }
                 } else {
-                    header('Location: index.php');
+                    // 一般ユーザーとしてログインボタンが押された場合
+                    if ($user_role === 1) {
+                        $error = "管理者は「管理者としてログイン」を選択してください。";
+                    } else {
+                        $_SESSION['role'] = $user_role;
+                        $_SESSION['user_db_id'] = $user['id'];
+                        $_SESSION['login_user_id'] = $user['user_id'];
+                        header('Location: index.php');
+                        exit();
+                    }
                 }
-                exit();
             } else {
-                $error = "ログイン情報が正しくありません";
+                $error = "ログイン情報が正しくありません。";
             }
         } catch (PDOException $e) {
-            $error = "データベース接続に失敗しました。管理者に連絡してください";
+            $error = "データベース接続に失敗しました。";
             error_log('ログインエラー: ' . $e->getMessage());
         }
     }
@@ -54,37 +70,42 @@ if (!empty($_POST)) {
 <html lang="ja">
 <head>
     <meta charset="utf-8">
-    <title>YSEレジシステム ログイン</title>
+    <title>YSEレジシステム - ログイン</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="auth.css">
 </head>
 <body class="auth-page">
-    <main class="auth-shell">
-        <section class="auth-card">
-            <p class="eyebrow">YSE POS</p>
-            <h1>ログイン</h1>
+    <header class="auth-header">
+        <h1>YSE POS ログイン</h1>
+    </header>
 
+    <main class="auth-container">
+        <section class="auth-card">
             <?php if ($registered): ?>
-                <div class="notice success auth-notice">登録が完了しました。IDとパスワードでログインしてください。</div>
+                <div class="auth-notice success">登録が完了しました。<br>IDとパスワードでログインしてください。</div>
             <?php endif; ?>
             <?php if ($error): ?>
-                <div class="notice error auth-notice"><?= htmlspecialchars($error) ?></div>
+                <div class="auth-notice error"><?= htmlspecialchars($error) ?></div>
             <?php endif; ?>
 
             <form action="" method="post" class="auth-form">
                 <label>
-                    ユーザーID
-                    <input type="text" name="user_id" placeholder="ユーザーID" value="<?= htmlspecialchars($_POST['user_id'] ?? '') ?>" autofocus>
+                    ユーザーID / 管理者ID
+                    <input type="text" name="user_id" placeholder="IDを入力" value="<?= htmlspecialchars($_POST['user_id'] ?? '') ?>" autofocus>
                 </label>
                 <label>
                     パスワード
-                    <input type="password" name="password" placeholder="パスワード">
+                    <input type="password" name="password" placeholder="パスワードを入力">
                 </label>
-                <button type="submit" class="primary-btn">ログイン</button>
+                
+                <div class="auth-actions">
+                    <button type="submit" name="submit_type" value="user" class="auth-btn btn-user">一般ユーザーとしてログイン</button>
+                    <button type="submit" name="submit_type" value="admin" class="auth-btn btn-admin">管理者としてログイン</button>
+                </div>
             </form>
 
             <div class="auth-links">
-                <a class="button-link" href="register.php">新規登録</a>
-                <a class="button-link" href="index.php">レジへ戻る</a>
+                <a href="register.php">新規ユーザー登録はこちら</a>
             </div>
         </section>
     </main>

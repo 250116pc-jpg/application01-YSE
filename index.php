@@ -2,6 +2,11 @@
 session_start();
 require_once 'db.php';
 
+if (!isset($_SESSION['user_db_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
 function h($value)
 {
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
@@ -58,6 +63,7 @@ $notice = $_SESSION['notice'] ?? null;
 $salesMessage = $_SESSION['sales_message'] ?? null;
 $lastReceipt = $_SESSION['last_receipt'] ?? null;
 $currentLoginUserId = $_SESSION['login_user_id'] ?? null;
+$currentRole = (int)($_SESSION['role'] ?? 0);
 unset($_SESSION['notice'], $_SESSION['sales_message']);
 
 $items = [];
@@ -105,9 +111,10 @@ $displayItemCount = cartCount($receiptRows);
                 <span>ログイン中</span>
                 <strong><?= h($currentLoginUserId ?? '未ログイン') ?></strong>
             </div>
-            <a href="login.php">ログイン</a>
+            <?php if ($currentRole === 1): ?>
+                <a href="admin_menu.php">管理者</a>
+            <?php endif; ?>
             <a href="login.php?logout=1">ログアウト</a>
-            <a href="admin_menu.php">管理者</a>
         </nav>
     </header>
 

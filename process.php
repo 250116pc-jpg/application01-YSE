@@ -8,6 +8,12 @@ function redirectToRegister()
     exit;
 }
 
+function redirectToLogin()
+{
+    header('Location: login.php');
+    exit;
+}
+
 function setNotice($message, $type = 'info')
 {
     $_SESSION['notice'] = [
@@ -80,6 +86,10 @@ function cleanInt($value, $min = 0, $max = 999999999)
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirectToRegister();
+}
+
+if (!isset($_SESSION['user_db_id'])) {
+    redirectToLogin();
 }
 
 $action = $_POST['action'] ?? '';

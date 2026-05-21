@@ -17,7 +17,6 @@ if (!empty($_POST)) {
         $error = "IDは英数字、_ @ . - の3～20文字で入力してください。";
     } else {
         require_once 'db.php';
-
         try {
             $pdo = getPdo();
             ensureAppSchema($pdo);
@@ -46,39 +45,44 @@ if (!empty($_POST)) {
 <html lang="ja">
 <head>
     <meta charset="utf-8">
-    <title>YSEレジシステム 新規登録</title>
+    <title>YSEレジシステム - 新規登録</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="auth.css">
 </head>
 <body class="auth-page">
-<main class="auth-shell">
-<section class="auth-card">
-    <p class="eyebrow">YSE POS</p>
-    <h1>新規登録</h1>
-    <?php if ($error): ?>
-        <div class="notice error auth-notice"><?= htmlspecialchars($error) ?></div>
-    <?php endif; ?>
+    <header class="auth-header">
+        <h1>YSE POS 新規ユーザー登録</h1>
+    </header>
 
-    <form action="" method="post" class="auth-form">
-        <label>
-            ユーザーID
-            <input type="text" name="user_id" placeholder="ユーザーID" value="<?= htmlspecialchars($_POST['user_id'] ?? '') ?>" autofocus>
-        </label>
-        <label>
-            パスワード
-            <input type="password" name="password" placeholder="パスワード">
-        </label>
-        <label>
-            パスワード（確認）
-            <input type="password" name="password_confirm" placeholder="もう一度入力">
-        </label>
-        <button type="submit" class="primary-btn">登録する</button>
-    </form>
+    <main class="auth-container">
+        <section class="auth-card">
+            <?php if ($error): ?>
+                <div class="auth-notice error"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
 
-    <div class="auth-links">
-        <a class="button-link" href="login.php">ログインへ戻る</a>
-        <a class="button-link" href="index.php">レジへ戻る</a>
-    </div>
-</section>
-</main>
+            <form action="" method="post" class="auth-form">
+                <label>
+                    ユーザーID
+                    <input type="text" name="user_id" placeholder="半角英数字3～20文字" value="<?= htmlspecialchars($_POST['user_id'] ?? '') ?>" autofocus>
+                </label>
+                <label>
+                    パスワード
+                    <input type="password" name="password" placeholder="パスワードを入力">
+                </label>
+                <label>
+                    パスワード（確認）
+                    <input type="password" name="password_confirm" placeholder="もう一度入力">
+                </label>
+                
+                <div class="auth-actions">
+                    <button type="submit" class="auth-btn btn-user">登録する</button>
+                </div>
+            </form>
+
+            <div class="auth-links">
+                <a href="login.php">ログイン画面へ戻る</a>
+            </div>
+        </section>
+    </main>
 </body>
 </html>
