@@ -131,6 +131,45 @@ try {
                     $messageType = 'success';
                 }
             }
+        } elseif ($action === 'add_item') {
+            $name = $_POST['name'] ?? '';
+            $price = (int)($_POST['price'] ?? 0);
+            $stock = (int)($_POST['stock'] ?? 0);
+            
+            if ($name === '') {
+                $message = '商品名を入力してください。';
+                $messageType = 'error';
+            } else {
+                $stmt = $pdo->prepare('INSERT INTO items (name, price, stock) VALUES (?, ?, ?)');
+                $stmt->execute([$name, $price, $stock]);
+                $message = '新しい商品を追加しました。';
+                $messageType = 'success';
+            }
+
+        } elseif ($action === 'update_item') {
+            $itemId = (int)($_POST['id'] ?? 0);
+            $name = $_POST['name'] ?? '';
+            $price = (int)($_POST['price'] ?? 0);
+            $stock = (int)($_POST['stock'] ?? 0);
+            
+            if ($name === '' || $itemId <= 0) {
+                $message = '商品名が正しくありません。';
+                $messageType = 'error';
+            } else {
+                $stmt = $pdo->prepare('UPDATE items SET name = ?, price = ?, stock = ? WHERE id = ?');
+                $stmt->execute([$name, $price, $stock, $itemId]);
+                $message = '商品情報を更新しました。';
+                $messageType = 'success';
+            }
+
+        } elseif ($action === 'delete_item') {
+            $itemId = (int)($_POST['id'] ?? 0);
+            if ($itemId > 0) {
+                $stmt = $pdo->prepare('DELETE FROM items WHERE id = ?');
+                $stmt->execute([$itemId]);
+                $message = '商品を削除しました。';
+                $messageType = 'success';
+            }
         }
     }
 
@@ -197,7 +236,7 @@ try {
             <div>
                 <p class="eyebrow">SYSTEM</p>
                 <h2>管理機能一覧</h2>
-                <p>消費税変更、売上確認、ユーザー削除、パスワード変更をここで操作できます。</p>
+                <p>消費税変更、売上確認、ユーザー削除、パスワード変更、商品管理をここで操作できます。</p>
             </div>
         </section>
 
@@ -284,24 +323,56 @@ try {
         </section>
 
         <section class="admin-card">
-            <h2>商品と在庫</h2>
+            <h2>商品と在庫の管理</h2>
+            
+            <div style="margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
+                <h3 style="margin-top: 0; font-size: 14px; color: #555;">新規商品追加</h3>
+                <form method="post" class="inline-form" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <input type="hidden" name="action" value="add_item">
+                    <input type="text" name="name" placeholder="商品名" required style="flex: 1; min-width: 150px;">
+                    <input type="number" name="price" placeholder="価格" min="0" required style="width: 100px;">
+                    <input type="number" name="stock" placeholder="在庫数" min="0" required style="width: 100px;">
+                    <button type="submit" class="primary-btn">追加</button>
+                </form>
+            </div>
+
             <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>商品名</th>
-                            <th>価格</th>
+                            <th>価格 (円)</th>
                             <th>在庫</th>
+                            <th>操作</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($items as $item): ?>
                             <tr>
                                 <td><?= h($item['id']) ?></td>
-                                <td><?= h($item['name']) ?></td>
-                                <td><?= yen($item['price']) ?></td>
-                                <td><?= h($item['stock']) ?></td>
+                                <td>
+                                    <form method="post" id="form_update_item_<?= h($item['id']) ?>" style="margin: 0;">
+                                        <input type="hidden" name="action" value="update_item">
+                                        <input type="hidden" name="id" value="<?= h($item['id']) ?>">
+                                        <input type="text" name="name" value="<?= h($item['name']) ?>" required style="width: 100%; box-sizing: border-box; padding: 4px;">
+                                    </form>
+                                </td>
+                                <td>
+                                    <input type="number" name="price" value="<?= h($item['price']) ?>" min="0" required form="form_update_item_<?= h($item['id']) ?>" style="width: 80px; padding: 4px;">
+                                </td>
+                                <td>
+                                    <input type="number" name="stock" value="<?= h($item['stock']) ?>" min="0" required form="form_update_item_<?= h($item['id']) ?>" style="width: 80px; padding: 4px;">
+                                </td>
+                                <td style="display: flex; gap: 6px;">
+                                    <button type="submit" form="form_update_item_<?= h($item['id']) ?>" style="padding: 4px 8px;">更新</button>
+                                    
+                                    <form method="post" style="margin: 0;">
+                                        <input type="hidden" name="action" value="delete_item">
+                                        <input type="hidden" name="id" value="<?= h($item['id']) ?>">
+                                        <button type="submit" class="danger-btn" style="padding: 4px 8px;" onclick="return confirm('「<?= h($item['name']) ?>」を本当に削除しますか？')">削除</button>
+                                    </form>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
