@@ -2,7 +2,7 @@
 session_start();
 require_once 'db.php';
 
-if ((int)($_SESSION['role'] ?? -1) !== 1) {
+if ((int)($_SESSION['role'] ?? -1) !== 1 || ($_SESSION['login_user_id'] ?? '') !== 'adm') {
     header('Location: login.php');
     exit;
 }
@@ -23,6 +23,7 @@ $messageType = 'info';
 try {
     $pdo = getPdo();
     ensureAppSchema($pdo);
+    ensureDefaultAdmin($pdo);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? '';
@@ -36,7 +37,14 @@ try {
             $userId = (int)($_POST['id'] ?? 0);
             $newPassword = $_POST['new_password'] ?? '';
 
-            if ($userId <= 0 || strlen($newPassword) < 4) {
+            $stmt = $pdo->prepare('SELECT user_id FROM users WHERE id = ?');
+            $stmt->execute([$userId]);
+            $targetLoginId = (string)$stmt->fetchColumn();
+
+            if ($targetLoginId === 'adm') {
+                $message = '管理者admのパスワードは固定です。';
+                $messageType = 'error';
+            } elseif ($userId <= 0 || strlen($newPassword) < 4) {
                 $message = '新しいパスワードは4文字以上で入力してください。';
                 $messageType = 'error';
             } else {
@@ -54,19 +62,58 @@ try {
                 $message = 'ログイン中の自分自身は削除できません。';
                 $messageType = 'error';
             } else {
-                $stmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
+                $stmt = $pdo->prepare('SELECT user_id, role FROM users WHERE id = ?');
                 $stmt->execute([$userId]);
-                $message = 'ユーザーを削除しました。';
-                $messageType = 'success';
+                $targetUser = $stmt->fetch();
+                $targetRole = $targetUser['role'] ?? null;
+                $adminCount = (int)$pdo->query('SELECT COUNT(*) FROM users WHERE role = 1')->fetchColumn();
+
+                if (($targetUser['user_id'] ?? '') === 'adm') {
+                    $message = '固定管理者admは削除できません。';
+                    $messageType = 'error';
+                } elseif ((int)$targetRole === 1 && $adminCount <= 1) {
+                    $message = '最後の管理者は削除できません。';
+                    $messageType = 'error';
+                } else {
+                    $stmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
+                    $stmt->execute([$userId]);
+                    $message = 'ユーザーを削除しました。';
+                    $messageType = 'success';
+                }
             }
 
         } elseif ($action === 'update_role') {
             $userId = (int)($_POST['id'] ?? 0);
             $role = (int)($_POST['role'] ?? 0);
-            $stmt = $pdo->prepare('UPDATE users SET role = ? WHERE id = ?');
-            $stmt->execute([$role === 1 ? 1 : 0, $userId]);
-            $message = 'ユーザー権限を更新しました。';
-            $messageType = 'success';
+            $currentUserId = (int)($_SESSION['user_db_id'] ?? 0);
+            $adminCount = (int)$pdo->query('SELECT COUNT(*) FROM users WHERE role = 1')->fetchColumn();
+
+            if ($userId === $currentUserId && $role !== 1) {
+                $message = 'ログイン中の自分自身を一般ユーザーには変更できません。';
+                $messageType = 'error';
+            } else {
+                $stmt = $pdo->prepare('SELECT user_id, role FROM users WHERE id = ?');
+                $stmt->execute([$userId]);
+                $targetUser = $stmt->fetch();
+                $targetLoginId = $targetUser['user_id'] ?? '';
+                $currentRole = (int)($targetUser['role'] ?? 0);
+
+                if ($targetLoginId !== 'adm' && $role === 1) {
+                    $message = '管理者アカウントはadmのみです。';
+                    $messageType = 'error';
+                } elseif ($targetLoginId === 'adm' && $role !== 1) {
+                    $message = '固定管理者admは一般ユーザーに変更できません。';
+                    $messageType = 'error';
+                } elseif ($currentRole === 1 && $role !== 1 && $adminCount <= 1) {
+                    $message = '最後の管理者は一般ユーザーに変更できません。';
+                    $messageType = 'error';
+                } else {
+                    $stmt = $pdo->prepare('UPDATE users SET role = ? WHERE id = ?');
+                    $stmt->execute([$role === 1 ? 1 : 0, $userId]);
+                    $message = 'ユーザー権限を更新しました。';
+                    $messageType = 'success';
+                }
+            }
         }
     }
 
@@ -75,8 +122,9 @@ try {
     $salesAll = (int)$pdo->query('SELECT COALESCE(SUM(amount), 0) FROM sales')->fetchColumn();
     $salesCount = (int)$pdo->query('SELECT COUNT(*) FROM sales')->fetchColumn();
     $recentSales = $pdo->query('
-        SELECT id, customer_id, amount, created_at
-        FROM sales
+        SELECT s.id, s.customer_id, s.amount, s.created_at, u.user_id AS customer_user_id
+        FROM sales s
+        LEFT JOIN users u ON u.id = s.customer_id
         ORDER BY created_at DESC
         LIMIT 20
     ')->fetchAll();
@@ -111,7 +159,12 @@ try {
         </div>
         <nav class="top-actions">
             <a href="index.php">レジへ</a>
+            <div class="user-status">
+                <span>ログイン中</span>
+                <strong><?= h($_SESSION['login_user_id'] ?? '未ログイン') ?></strong>
+            </div>
             <a href="login.php">ログイン</a>
+            <a href="login.php?logout=1">ログアウト</a>
         </nav>
     </header>
 
@@ -122,7 +175,7 @@ try {
     <main class="admin-layout">
         <section class="admin-card hero-admin">
             <div>
-                <p class="eyebrow">すげぇぇぇ</p>
+                <p class="eyebrow">SYSTEM</p>
                 <h2>管理機能一覧</h2>
                 <p>消費税変更、売上確認、ユーザー削除、パスワード変更をここで操作できます。</p>
             </div>
@@ -161,7 +214,7 @@ try {
                         <?php foreach ($recentSales as $sale): ?>
                             <tr>
                                 <td><?= h($sale['id']) ?></td>
-                                <td><?= h($sale['customer_id']) ?></td>
+                                <td><?= h($sale['customer_user_id'] ?? $sale['customer_id']) ?></td>
                                 <td><?= yen($sale['amount']) ?></td>
                                 <td><?= h($sale['created_at']) ?></td>
                             </tr>

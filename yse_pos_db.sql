@@ -85,6 +85,8 @@ CREATE TABLE `sale_items` (
   `item_name` varchar(255) NOT NULL,
   `unit_price` int(11) NOT NULL,
   `quantity` int(11) NOT NULL,
+  `discount_rate` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `discount_amount` int(11) NOT NULL DEFAULT 0,
   `discount` int(11) NOT NULL DEFAULT 0,
   `subtotal` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
@@ -128,7 +130,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `user_id`, `password_hash`, `role`, `created_at`) VALUES
 (1, '1234', '$2y$10$id/Be/U5tlqWQJ3AO7n3SO5tVOZOTgNjxNYewdBbiZcXsIxVFIzam', 0, '2026-04-23 05:16:55'),
-(2, 'admin', '$2y$10$MGM/cWKfPcThDTc/SnNzHOjdnpPI8EoLXmWcVQUokUUNkKjBIysqa', 1, '2026-05-14 13:22:25');
+(2, 'adm', '$2y$10$7.MSoXyHg9On6XQPjHKOWuyV/oVZ4Yb/Zq1AfPzxKzepCiHwkmgKi', 1, '2026-05-14 13:22:25');
 
 --
 -- ダンプしたテーブルのインデックス

@@ -31,6 +31,8 @@ function ensureAppSchema(PDO $pdo)
             item_name varchar(255) NOT NULL,
             unit_price int(11) NOT NULL,
             quantity int(11) NOT NULL,
+            discount_rate decimal(5,2) NOT NULL DEFAULT 0,
+            discount_amount int(11) NOT NULL DEFAULT 0,
             discount int(11) NOT NULL DEFAULT 0,
             subtotal int(11) NOT NULL,
             created_at timestamp NOT NULL DEFAULT current_timestamp(),
@@ -40,8 +42,49 @@ function ensureAppSchema(PDO $pdo)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
     ");
 
+    ensureColumn($pdo, 'sale_items', 'discount_rate', 'decimal(5,2) NOT NULL DEFAULT 0 AFTER quantity');
+    ensureColumn($pdo, 'sale_items', 'discount_amount', 'int(11) NOT NULL DEFAULT 0 AFTER discount_rate');
+
     $stmt = $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES ('tax_rate', '10')");
     $stmt->execute();
+}
+
+function ensureColumn(PDO $pdo, $table, $column, $definition)
+{
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*)
+        FROM information_schema.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE()
+          AND TABLE_NAME = ?
+          AND COLUMN_NAME = ?
+    ");
+    $stmt->execute([$table, $column]);
+
+    if ((int)$stmt->fetchColumn() === 0) {
+        $pdo->exec("ALTER TABLE `$table` ADD COLUMN `$column` $definition");
+    }
+}
+
+function ensureDefaultAdmin(PDO $pdo)
+{
+    $adminId = 'adm';
+    $adminPassword = 'adm26626';
+    $passwordHash = password_hash($adminPassword, PASSWORD_DEFAULT);
+
+    $stmt = $pdo->prepare('SELECT id FROM users WHERE user_id = ?');
+    $stmt->execute([$adminId]);
+    $adminDbId = $stmt->fetchColumn();
+
+    if ($adminDbId) {
+        $stmt = $pdo->prepare('UPDATE users SET password_hash = ?, role = 1 WHERE id = ?');
+        $stmt->execute([$passwordHash, $adminDbId]);
+    } else {
+        $stmt = $pdo->prepare('INSERT INTO users (user_id, password_hash, role, created_at) VALUES (?, ?, 1, NOW())');
+        $stmt->execute([$adminId, $passwordHash]);
+    }
+
+    $stmt = $pdo->prepare('UPDATE users SET role = 0 WHERE role = 1 AND user_id <> ?');
+    $stmt->execute([$adminId]);
 }
 
 function getTaxRate(PDO $pdo)

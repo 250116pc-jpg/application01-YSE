@@ -11,6 +11,8 @@ if (!empty($_POST)) {
         $error = "IDとパスワードをすべて入力してください。";
     } elseif ($password !== $password_confirm) {
         $error = "パスワードが一致しません。";
+    } elseif (strtolower($user_id) === 'adm') {
+        $error = "admは管理者専用IDです。別のIDを入力してください。";
     } elseif (!preg_match('/^[a-zA-Z0-9_@.-]{3,20}$/', $user_id)) {
         $error = "IDは英数字、_ @ . - の3～20文字で入力してください。";
     } else {
@@ -18,6 +20,8 @@ if (!empty($_POST)) {
 
         try {
             $pdo = getPdo();
+            ensureAppSchema($pdo);
+            ensureDefaultAdmin($pdo);
 
             $stmt = $pdo->prepare('SELECT id FROM users WHERE user_id = ?');
             $stmt->execute([$user_id]);
@@ -43,52 +47,38 @@ if (!empty($_POST)) {
 <head>
     <meta charset="utf-8">
     <title>YSEレジシステム 新規登録</title>
-    <style>
-        body { background-color: #34495e; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-box { background: #dcdde1; padding: 40px; border-radius: 15px; width: 700px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border-bottom: 10px solid #7f8c8d; }
-        h1 { text-align: center; color: #2f3640; margin-top: 0; margin-bottom: 30px; }
-        .input-side { display: flex; flex-direction: column; gap: 20px; }
-        .input-side label { font-weight: bold; color: #2f3640; font-size: 14px; }
-        .input-side input { width: 100%; padding: 15px; border-radius: 6px; border: 1px solid #bdc3c7; font-size: 16px; box-sizing: border-box; }
-        .submit-container { text-align: center; margin-top: 20px; }
-        .submit-btn { width: 80%; padding: 20px; background: #27ae60; color: white; border: none; border-radius: 8px; font-size: 22px; font-weight: bold; cursor: pointer; box-shadow: 0 5px #219150; }
-        .submit-btn:active { transform: translateY(3px); box-shadow: 0 2px #219150; }
-        .link { margin-top: 15px; text-align: center; }
-        .link a { color: #2f3640; text-decoration: none; font-weight: bold; }
-        .error-msg { color: #e84118; font-weight: bold; text-align: center; margin-bottom: 20px; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body>
-<div class="login-box">
-    <h1>YSEレジシステム 新規登録</h1>
+<body class="auth-page">
+<main class="auth-shell">
+<section class="auth-card">
+    <p class="eyebrow">YSE POS</p>
+    <h1>新規登録</h1>
     <?php if ($error): ?>
-        <p class="error-msg"><?= htmlspecialchars($error) ?></p>
+        <div class="notice error auth-notice"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <form action="" method="post">
-        <div class="input-side">
-            <div>
-                <label>ユーザーID</label>
-                <input type="text" name="user_id" placeholder="登録するIDを入力" value="<?= htmlspecialchars($_POST['user_id'] ?? '') ?>">
-            </div>
-            <div>
-                <label>パスワード</label>
-                <input type="password" name="password" placeholder="パスワードを入力">
-            </div>
-            <div>
-                <label>パスワード（確認）</label>
-                <input type="password" name="password_confirm" placeholder="もう一度パスワードを入力">
-            </div>
-        </div>
-
-        <div class="submit-container">
-            <button type="submit" class="submit-btn">登録する</button>
-        </div>
+    <form action="" method="post" class="auth-form">
+        <label>
+            ユーザーID
+            <input type="text" name="user_id" placeholder="ユーザーID" value="<?= htmlspecialchars($_POST['user_id'] ?? '') ?>" autofocus>
+        </label>
+        <label>
+            パスワード
+            <input type="password" name="password" placeholder="パスワード">
+        </label>
+        <label>
+            パスワード（確認）
+            <input type="password" name="password_confirm" placeholder="もう一度入力">
+        </label>
+        <button type="submit" class="primary-btn">登録する</button>
     </form>
 
-    <div class="link">
-        <a href="login.php">ログイン画面に戻る</a>
+    <div class="auth-links">
+        <a class="button-link" href="login.php">ログインへ戻る</a>
+        <a class="button-link" href="index.php">レジへ戻る</a>
     </div>
-</div>
+</section>
+</main>
 </body>
 </html>

@@ -35,10 +35,32 @@ function cartSubtotal(array $cart)
 {
     $subtotal = 0;
     foreach ($cart as $line) {
-        $lineTotal = ((int)$line['price'] * (int)$line['quantity']) - (int)$line['discount'];
-        $subtotal += max(0, $lineTotal);
+        $subtotal += lineSubtotal($line);
     }
     return $subtotal;
+}
+
+function lineDiscountRate(array $line)
+{
+    return max(0, min(100, (float)($line['discount_rate'] ?? 0)));
+}
+
+function lineDiscountAmount(array $line)
+{
+    return max(0, (int)($line['discount_amount'] ?? ($line['discount'] ?? 0)));
+}
+
+function lineDiscountTotal(array $line)
+{
+    $base = (int)$line['price'] * (int)$line['quantity'];
+    $rateDiscount = (int)floor($base * (lineDiscountRate($line) / 100));
+    return min($base, $rateDiscount + lineDiscountAmount($line));
+}
+
+function lineSubtotal(array $line)
+{
+    $base = (int)$line['price'] * (int)$line['quantity'];
+    return max(0, $base - lineDiscountTotal($line));
 }
 
 function cartTotalWithTax(array $cart, $taxRate)
@@ -73,7 +95,7 @@ try {
             setNotice('商品IDを入力してください。', 'error');
             redirectToRegister();
         }
-        $itemId = max(0, min(999999, (int)$rawItemId)); //max(1, min(～))となっており、1より小さい整数値を入力したら、1のにんじんが出力されるようになったので、エラー☟が起きるように、0に修正。
+        $itemId = min(999999, (int)$rawItemId);
         $stmt = $pdo->prepare('SELECT id, name, price, stock FROM items WHERE id = ?');
         $stmt->execute([$itemId]);
         $item = $stmt->fetch();
@@ -92,7 +114,9 @@ try {
         $cart = getCart();
         $found = false;
         foreach ($cart as &$line) {
-            if ((int)$line['item_id'] === (int)$item['id'] && (int)$line['discount'] === 0) {
+            $lineRate = (float)($line['discount_rate'] ?? 0);
+            $lineAmount = (int)($line['discount_amount'] ?? ($line['discount'] ?? 0));
+            if ((int)$line['item_id'] === (int)$item['id'] && $lineRate == 0.0 && $lineAmount === 0) {
                 $line['quantity']++;
                 $found = true;
                 break;
@@ -106,6 +130,8 @@ try {
                 'name' => $item['name'],
                 'price' => (int)$item['price'],
                 'quantity' => 1,
+                'discount_rate' => 0,
+                'discount_amount' => 0,
                 'discount' => 0,
             ];
         }
@@ -115,14 +141,19 @@ try {
     } elseif ($action === 'update_line') {
         $index = cleanInt($_POST['line_index'] ?? '', 0, 999);
         $quantity = cleanInt($_POST['quantity'] ?? 1, 1, 99);
-        $discount = cleanInt($_POST['discount'] ?? 0, 0, 999999);
+        $discountRate = min(100, (float)cleanInt($_POST['discount_rate'] ?? 0, 0, 100));
+        $discountAmount = cleanInt($_POST['discount_amount'] ?? 0, 0, 999999);
         $cart = getCart();
 
         if (isset($cart[$index])) {
             rememberCart();
-            $maxDiscount = (int)$cart[$index]['price'] * $quantity;
+            $base = (int)$cart[$index]['price'] * $quantity;
+            $rateDiscount = (int)floor($base * ($discountRate / 100));
+            $maxAmountDiscount = max(0, $base - $rateDiscount);
             $cart[$index]['quantity'] = $quantity;
-            $cart[$index]['discount'] = min($discount, $maxDiscount);
+            $cart[$index]['discount_rate'] = $discountRate;
+            $cart[$index]['discount_amount'] = min($discountAmount, $maxAmountDiscount);
+            $cart[$index]['discount'] = lineDiscountTotal($cart[$index]);
             setCart($cart);
             setNotice('レシート明細を更新しました。');
         }
@@ -174,21 +205,26 @@ try {
 
         $itemStmt = $pdo->prepare('
             INSERT INTO sale_items
-                (sale_id, item_id, item_name, unit_price, quantity, discount, subtotal)
+                (sale_id, item_id, item_name, unit_price, quantity, discount_rate, discount_amount, discount, subtotal)
             VALUES
-                (?, ?, ?, ?, ?, ?, ?)
+                (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ');
         $stockStmt = $pdo->prepare('UPDATE items SET stock = GREATEST(stock - ?, 0) WHERE id = ?');
 
         foreach ($cart as $line) {
-            $lineSubtotal = max(0, ((int)$line['price'] * (int)$line['quantity']) - (int)$line['discount']);
+            $lineSubtotal = lineSubtotal($line);
+            $lineDiscountRate = lineDiscountRate($line);
+            $lineDiscountAmount = lineDiscountAmount($line);
+            $lineDiscount = lineDiscountTotal($line);
             $itemStmt->execute([
                 $saleId,
                 (int)$line['item_id'],
                 $line['name'],
                 (int)$line['price'],
                 (int)$line['quantity'],
-                (int)$line['discount'],
+                $lineDiscountRate,
+                $lineDiscountAmount,
+                $lineDiscount,
                 $lineSubtotal,
             ]);
             $stockStmt->execute([(int)$line['quantity'], (int)$line['item_id']]);
