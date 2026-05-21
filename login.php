@@ -33,28 +33,28 @@ if (!empty($_POST)) {
             if ($user && password_verify($password, $user['password_hash'])) {
                 $user_role = (int)$user['role'];
 
+                // 共通のセッション情報をセット
+                $_SESSION['role'] = $user_role;
+                $_SESSION['user_db_id'] = $user['id'];
+                $_SESSION['login_user_id'] = $user['user_id'];
+
                 if ($submit_type === 'admin') {
-                    // 管理者としてログインボタンが押された場合
+                    // 「管理者としてログイン」ボタンが押された場合
                     if ($user_role !== 1) {
+                        // 一般ユーザーが管理者ボタンを押した場合は弾く
                         $error = "このIDには管理者権限がありません。";
+                        // セットしたセッションをクリア
+                        $_SESSION = [];
                     } else {
-                        $_SESSION['role'] = $user_role;
-                        $_SESSION['user_db_id'] = $user['id'];
-                        $_SESSION['login_user_id'] = $user['user_id'];
+                        // 管理者権限があれば管理メニューへ
                         header('Location: admin_menu.php');
                         exit();
                     }
                 } else {
-                    // 一般ユーザーとしてログインボタンが押された場合
-                    if ($user_role === 1) {
-                        $error = "管理者は「管理者としてログイン」を選択してください。";
-                    } else {
-                        $_SESSION['role'] = $user_role;
-                        $_SESSION['user_db_id'] = $user['id'];
-                        $_SESSION['login_user_id'] = $user['user_id'];
-                        header('Location: index.php');
-                        exit();
-                    }
+                    // 「一般ユーザーとしてログイン」ボタンが押された場合
+                    // 管理者であっても一般ユーザーであっても、そのまま一般画面（index.php）へ遷移
+                    header('Location: index.php');
+                    exit();
                 }
             } else {
                 $error = "ログイン情報が正しくありません。";
