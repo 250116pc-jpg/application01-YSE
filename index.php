@@ -52,17 +52,44 @@ $displayItemCount = cartCount($receiptRows);
     
     <style>
         @media print {
-            /* ヘッダー、左側のレジパネル、印刷ボタンなどのアクションエリア、直近レシートのナビゲーションを隠す */
+            /* 1. 印刷時に絶対に見せたくないものをすべて隠す */
             .app-header, 
             .register-panel, 
             .receipt-actions, 
-            .last-receipt {
+            .last-receipt,
+            .notice,         /* 画面上部のお知らせメッセージ */
+            .line-actions {  /* カート内の「更新」「取消」ボタン */
                 display: none !important;
             }
             
-            /* レシート部分だけを左上に詰めて表示する設定 */
+            /* 2. レシート部分だけを紙の左上にピタッと配置する設定 */
+            body, .pos-page {
+                background: white !important;
+            }
             .pos-layout {
                 display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .receipt-panel {
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* 3. 入力ボックスの枠線を消して、ただの文字のように見せる */
+            input[type="number"] {
+                border: none !important;
+                background: transparent !important;
+                text-align: right;
+                -moz-appearance: textfield; /* Firefoxの矢印消し */
+            }
+            input[type="number"]::-webkit-outer-spin-button,
+            input[type="number"]::-webkit-inner-spin-button {
+                -webkit-appearance: none; /* Chrome/Safariの矢印消し */
+                margin: 0;
             }
         }
     </style>
