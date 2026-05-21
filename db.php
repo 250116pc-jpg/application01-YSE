@@ -84,26 +84,20 @@ function ensureColumnExists(PDO $pdo, $table, $column, $definition)
 
 function ensureDefaultAdmin(PDO $pdo)
 {
-    $adminId = 'adm';
-    $adminPassword = 'adm26626';
-    $passwordHash = password_hash($adminPassword, PASSWORD_DEFAULT);
+    // 現在登録されている全ユーザーの数を取得
+    $userCount = (int)$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
 
-    $stmt = $pdo->prepare('SELECT id FROM users WHERE user_id = ?');
-    $stmt->execute([$adminId]);
-    $adminDbId = $stmt->fetchColumn();
+    // データベースにユーザーが一人もいない場合（完全な初回起動時）のみ初期管理者を作成する
+    if ($userCount === 0) {
+        $adminId = 'adm';
+        $adminPassword = 'adm';
+        $passwordHash = password_hash($adminPassword, PASSWORD_DEFAULT);
 
-    if (!$adminDbId) {
-        // 【修正】まだadmが存在しない最初の1回だけ、初期パスワードで登録する
         $stmt = $pdo->prepare('INSERT INTO users (user_id, password_hash, role, created_at) VALUES (?, ?, 1, NOW())');
         $stmt->execute([$adminId, $passwordHash]);
-    } else {
-        // 【修正】すでにadmが存在する場合は、管理者権限(role=1)の維持だけ行い、パスワードは触らない
-        $stmt = $pdo->prepare('UPDATE users SET role = 1 WHERE id = ?');
-        $stmt->execute([$adminDbId]);
     }
-
-    $stmt = $pdo->prepare('UPDATE users SET role = 0 WHERE role = 1 AND user_id <> ?');
-    $stmt->execute([$adminId]);
+    
+    // すでに誰かしらユーザーが存在している場合は、初期IDを勝手に作ったり上書きしたりしない
 }
 
 function getTaxRate(PDO $pdo)
