@@ -18,16 +18,16 @@ try {
     die("データベース接続失敗");
 }
 
-// ★【データが出ない問題を完全解決】DBのカラム名が amount か total かを自動で判別する仕組み
+// DBのカラム名が amount か total かを自動で判別する仕組み
 try {
     $stmtCols = $pdo->query("SHOW COLUMNS FROM sales");
     $cols = array_column($stmtCols->fetchAll(), 'Field');
-    $valField = in_array('total', $cols) ? 'total' : 'amount'; // totalがあればそれを使う、無ければamount
+    $valField = in_array('total', $cols) ? 'total' : 'amount';
 } catch (Exception $e) {
-    $valField = 'amount'; // 万が一のエラー時はamountをデフォルトに
+    $valField = 'amount';
 }
 
-$period = $_GET['period'] ?? 'all'; // デフォルトは全期間
+$period = $_GET['period'] ?? 'all';
 $whereClause = '';
 $whereClauseSales = '';
 
@@ -155,6 +155,11 @@ $recentSales = $stmtRecent->fetchAll();
                     <option value="month" <?= $period === 'month' ? 'selected' : '' ?>>過去1ヶ月</option>
                     <option value="year" <?= $period === 'year' ? 'selected' : '' ?>>過去1年</option>
                 </select>
+                
+                <a href="export_csv.php?period=<?= htmlspecialchars($period, ENT_QUOTES, 'UTF-8') ?>" 
+                style="margin-left: 20px; padding: 10px 24px; background: #2980b9; color: #fff; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: bold; border: 1px solid #2980b9; display: inline-block; white-space: nowrap;">
+                CSV出力
+                </a>
             </form>
 
             <div class="dashboard-grid">
@@ -198,7 +203,8 @@ $recentSales = $stmtRecent->fetchAll();
                             <?php foreach ($recentSales as $sale): ?>
                             <tr>
                                 <td><?= h($sale['id']) ?></td>
-                                <td><?= number_format($sale[$valField]) ?>円</td> <td><?= h($sale['created_at']) ?></td>
+                                <td><?= number_format($sale[$valField]) ?>円</td> 
+                                <td><?= h($sale['created_at']) ?></td>
                             </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
