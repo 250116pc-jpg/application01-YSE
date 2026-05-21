@@ -176,12 +176,15 @@ try {
         </div>
         <nav class="top-actions">
             <a href="index.php">レジへ</a>
-            <div class="user-status">
+            <a href="sales_view.php">売上分析</a> <div class="user-status">
                 <span>ログイン中</span>
                 <strong><?= h($_SESSION['login_user_id'] ?? '未ログイン') ?></strong>
             </div>
-            <a href="login.php">ログイン</a>
-            <a href="login.php?logout=1">ログアウト</a>
+            <?php if (!isset($_SESSION['user_db_id'])): ?>
+                <a href="login.php">ログイン</a>
+            <?php else: ?>
+                <a href="login.php?logout=1">ログアウト</a>
+            <?php endif; ?>
         </nav>
     </header>
 

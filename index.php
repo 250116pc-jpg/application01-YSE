@@ -107,15 +107,13 @@ $displayItemCount = cartCount($receiptRows);
             <h1>YSEレジ</h1>
         </div>
         <nav class="top-actions">
-            <div class="user-status">
-                <span>ログイン中</span>
-                <strong><?= h($currentLoginUserId ?? '未ログイン') ?></strong>
-            </div>
-            <?php if ($currentRole === 1): ?>
-                <a href="admin_menu.php">管理者</a>
-            <?php endif; ?>
-            <a href="login.php?logout=1">ログアウト</a>
-        </nav>
+    <?php if ((int)($_SESSION['role'] ?? 0) === 1): ?>
+        <a href="admin_menu.php">管理メニュー</a>
+        <a href="sales_view.php">売上分析</a>
+    <?php endif; ?>
+    
+    <a href="login.php?logout=1">ログアウト</a>
+</nav>
     </header>
 
     <?php if ($dbError): ?>
