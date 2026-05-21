@@ -37,21 +37,38 @@ try {
             $userId = (int)($_POST['id'] ?? 0);
             $newPassword = $_POST['new_password'] ?? '';
 
-            $stmt = $pdo->prepare('SELECT user_id FROM users WHERE id = ?');
+            $stmt = $pdo->prepare('SELECT user_id, password_hash FROM users WHERE id = ?');
             $stmt->execute([$userId]);
-            $targetLoginId = (string)$stmt->fetchColumn();
+            $targetUser = $stmt->fetch();
+            
+            $targetLoginId = $targetUser['user_id'] ?? '';
+            $currentHash = $targetUser['password_hash'] ?? '';
 
             if ($targetLoginId === 'adm') {
-                $message = '管理者admのパスワードは固定です。';
-                $messageType = 'error';
-            } elseif ($userId <= 0 || strlen($newPassword) < 4) {
-                $message = '新しいパスワードは4文字以上で入力してください。';
-                $messageType = 'error';
+                $currentPassword = $_POST['current_password'] ?? '';
+                
+                if ($currentPassword === '' || !password_verify($currentPassword, $currentHash)) {
+                    $message = '現在のパスワードが正しくありません。';
+                    $messageType = 'error';
+                } elseif (strlen($newPassword) < 4) {
+                    $message = '新しいパスワードは4文字以上で入力してください。';
+                    $messageType = 'error';
+                } else {
+                    $stmt = $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
+                    $stmt->execute([password_hash($newPassword, PASSWORD_DEFAULT), $userId]);
+                    $message = '管理者admのパスワードを変更しました。';
+                    $messageType = 'success';
+                }
             } else {
-                $stmt = $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
-                $stmt->execute([password_hash($newPassword, PASSWORD_DEFAULT), $userId]);
-                $message = 'パスワードを変更しました。';
-                $messageType = 'success';
+                if ($userId <= 0 || strlen($newPassword) < 4) {
+                    $message = '新しいパスワードは4文字以上で入力してください。';
+                    $messageType = 'error';
+                } else {
+                    $stmt = $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
+                    $stmt->execute([password_hash($newPassword, PASSWORD_DEFAULT), $userId]);
+                    $message = 'パスワードを変更しました。';
+                    $messageType = 'success';
+                }
             }
 
         } elseif ($action === 'delete_user') {
@@ -242,12 +259,17 @@ try {
                             </select>
                             <button type="submit">権限保存</button>
                         </form>
-                        <form method="post" class="mini-form">
+                        
+                        <form method="post" style="display: flex; gap: 6px; align-items: center;">
                             <input type="hidden" name="action" value="reset_password">
                             <input type="hidden" name="id" value="<?= h($user['id']) ?>">
-                            <input type="password" name="new_password" placeholder="新パスワード">
-                            <button type="submit">変更</button>
+                            <?php if ($user['user_id'] === 'adm'): ?>
+                                <input type="password" name="current_password" placeholder="現パスワード" required style="width: 95px; padding: 6px 8px; font-size: 13px;">
+                            <?php endif; ?>
+                            <input type="password" name="new_password" placeholder="新パスワード" required style="width: 95px; padding: 6px 8px; font-size: 13px;">
+                            <button type="submit" style="padding: 6px 10px; font-size: 13px; white-space: nowrap;">変更</button>
                         </form>
+
                         <form method="post">
                             <input type="hidden" name="action" value="delete_user">
                             <input type="hidden" name="id" value="<?= h($user['id']) ?>">

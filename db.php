@@ -36,31 +36,48 @@ function ensureAppSchema(PDO $pdo)
             discount int(11) NOT NULL DEFAULT 0,
             subtotal int(11) NOT NULL,
             created_at timestamp NOT NULL DEFAULT current_timestamp(),
-            PRIMARY KEY (id),
-            KEY sale_id (sale_id),
-            KEY item_id (item_id)
+            PRIMARY KEY (id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
     ");
 
-    ensureColumn($pdo, 'sale_items', 'discount_rate', 'decimal(5,2) NOT NULL DEFAULT 0 AFTER quantity');
-    ensureColumn($pdo, 'sale_items', 'discount_amount', 'int(11) NOT NULL DEFAULT 0 AFTER discount_rate');
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS sales (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            customer_id int(11) DEFAULT NULL,
+            amount int(11) NOT NULL,
+            created_at timestamp NOT NULL DEFAULT current_timestamp(),
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+    ");
 
-    $stmt = $pdo->prepare("INSERT IGNORE INTO settings (`key`, `value`) VALUES ('tax_rate', '10')");
-    $stmt->execute();
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS items (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            name text NOT NULL,
+            price int(11) NOT NULL,
+            stock int(11) NOT NULL,
+            PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+    ");
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS users (
+            id int(11) NOT NULL AUTO_INCREMENT,
+            user_id varchar(20) NOT NULL,
+            password_hash varchar(255) NOT NULL,
+            role int(11) NOT NULL DEFAULT 0,
+            created_at timestamp NOT NULL DEFAULT current_timestamp(),
+            PRIMARY KEY (id),
+            UNIQUE KEY user_id_unique (user_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci
+    ");
 }
 
-function ensureColumn(PDO $pdo, $table, $column, $definition)
+function ensureColumnExists(PDO $pdo, $table, $column, $definition)
 {
-    $stmt = $pdo->prepare("
-        SELECT COUNT(*)
-        FROM information_schema.COLUMNS
-        WHERE TABLE_SCHEMA = DATABASE()
-          AND TABLE_NAME = ?
-          AND COLUMN_NAME = ?
-    ");
-    $stmt->execute([$table, $column]);
-
-    if ((int)$stmt->fetchColumn() === 0) {
+    $stmt = $pdo->prepare("SHOW COLUMNS FROM `$table` LIKE ?");
+    $stmt->execute([$column]);
+    if (!$stmt->fetch()) {
         $pdo->exec("ALTER TABLE `$table` ADD COLUMN `$column` $definition");
     }
 }
@@ -75,12 +92,14 @@ function ensureDefaultAdmin(PDO $pdo)
     $stmt->execute([$adminId]);
     $adminDbId = $stmt->fetchColumn();
 
-    if ($adminDbId) {
-        $stmt = $pdo->prepare('UPDATE users SET password_hash = ?, role = 1 WHERE id = ?');
-        $stmt->execute([$passwordHash, $adminDbId]);
-    } else {
+    if (!$adminDbId) {
+        // 【修正】まだadmが存在しない最初の1回だけ、初期パスワードで登録する
         $stmt = $pdo->prepare('INSERT INTO users (user_id, password_hash, role, created_at) VALUES (?, ?, 1, NOW())');
         $stmt->execute([$adminId, $passwordHash]);
+    } else {
+        // 【修正】すでにadmが存在する場合は、管理者権限(role=1)の維持だけ行い、パスワードは触らない
+        $stmt = $pdo->prepare('UPDATE users SET role = 1 WHERE id = ?');
+        $stmt->execute([$adminDbId]);
     }
 
     $stmt = $pdo->prepare('UPDATE users SET role = 0 WHERE role = 1 AND user_id <> ?');
@@ -105,9 +124,6 @@ function setTaxRate(PDO $pdo, $rate)
 {
     ensureAppSchema($pdo);
     $rate = max(0, min(100, (float)$rate));
-    $stmt = $pdo->prepare("
-        INSERT INTO settings (`key`, `value`) VALUES ('tax_rate', ?)
-        ON DUPLICATE KEY UPDATE `value` = VALUES(`value`)
-    ");
-    $stmt->execute([(string)$rate]);
+    $stmt = $pdo->prepare("INSERT INTO settings (`key`, `value`) VALUES ('tax_rate', ?) ON DUPLICATE KEY UPDATE `value` = ?");
+    $stmt->execute([$rate, $rate]);
 }
