@@ -2,12 +2,11 @@
 session_start();
 require_once 'db.php';
 require_once 'funcs/functions.php';
+
 if (!isset($_SESSION['user_db_id'])) {
     header('Location: login.php');
     exit;
 }
-
-
 
 $cart = $_SESSION['cart'] ?? [];
 $notice = $_SESSION['notice'] ?? null;
@@ -50,6 +49,23 @@ $displayItemCount = cartCount($receiptRows);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YSEレジ</title>
     <link rel="stylesheet" href="style.css">
+    
+    <style>
+        @media print {
+            /* ヘッダー、左側のレジパネル、印刷ボタンなどのアクションエリア、直近レシートのナビゲーションを隠す */
+            .app-header, 
+            .register-panel, 
+            .receipt-actions, 
+            .last-receipt {
+                display: none !important;
+            }
+            
+            /* レシート部分だけを左上に詰めて表示する設定 */
+            .pos-layout {
+                display: block !important;
+            }
+        }
+    </style>
 </head>
 <body class="pos-page">
     <header class="app-header">
@@ -58,13 +74,13 @@ $displayItemCount = cartCount($receiptRows);
             <h1>YSEレジ</h1>
         </div>
         <nav class="top-actions">
-    <?php if ((int)($_SESSION['role'] ?? 0) === 1): ?>
-        <a href="admin_menu/admin_menu.php">管理メニュー</a>
-        <a href="sales_view.php">売上分析</a>
-    <?php endif; ?>
-    
-    <a href="login.php?logout=1">ログアウト</a>
-</nav>
+            <?php if ((int)($_SESSION['role'] ?? 0) === 1): ?>
+                <a href="admin_menu/admin_menu.php">管理メニュー</a>
+                <a href="sales_view.php">売上分析</a>
+            <?php endif; ?>
+            
+            <a href="login.php?logout=1">ログアウト</a>
+        </nav>
     </header>
 
     <?php if ($dbError): ?>
