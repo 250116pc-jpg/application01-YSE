@@ -214,7 +214,7 @@ $recentSales = $stmtRecent->fetchAll();
             <h1>売上データ分析</h1>
         </div>
         <nav class="top-actions">
-            <a href="admin_menu.php">管理メニューへ</a>
+            <a href="admin_menu/admin_menu.php">管理メニューへ</a>
             <a href="index.php">レジ画面へ</a>
         </nav>
     </header>
