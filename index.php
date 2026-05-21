@@ -59,7 +59,7 @@ $displayItemCount = cartCount($receiptRows);
         </div>
         <nav class="top-actions">
     <?php if ((int)($_SESSION['role'] ?? 0) === 1): ?>
-        <a href="admin_menu.php">管理メニュー</a>
+        <a href="admin_menu/admin_menu.php">管理メニュー</a>
         <a href="sales_view.php">売上分析</a>
     <?php endif; ?>
     
