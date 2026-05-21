@@ -703,3 +703,50 @@ th {
         display: none;
     }
 }
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+@media (max-width: 900px) {
+    .dashboard-grid { grid-template-columns: 1fr; }
+}
+.chart-wrapper h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: var(--ink);
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 8px;
+}
+.chart-container {
+    position: relative;
+    height: 280px;
+    width: 100%;
+}
+.no-data-msg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--muted);
+    font-size: 14px;
+    background: #f8f9fa;
+    border: 1px dashed var(--line);
+    border-radius: 4px;
+}
+.filter-form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.filter-form select {
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--ink);
+}

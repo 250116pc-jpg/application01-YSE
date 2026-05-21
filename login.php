@@ -47,7 +47,7 @@ if (!empty($_POST)) {
                         $_SESSION = [];
                     } else {
                         // 管理者権限があれば管理メニューへ
-                        header('Location: admin_menu.php');
+                        header('Location: admin_menu/admin_menu.php');
                         exit();
                     }
                 } else {
