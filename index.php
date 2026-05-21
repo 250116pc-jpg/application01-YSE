@@ -128,11 +128,6 @@ $displayItemCount = cartCount($receiptRows);
 
     <main class="pos-layout">
         <section class="register-panel">
-            <div class="screen modern-screen">
-                <div class="op-indicator">商品ID</div>
-                <div id="disp">0</div>
-            </div>
-
             <form method="post" action="process.php" class="scan-form" id="scanForm">
                 <input type="hidden" name="action" value="add_item">
                 <label for="item_id">商品検索</label>
@@ -289,29 +284,21 @@ $displayItemCount = cartCount($receiptRows);
 
     <script>
         const input = document.getElementById('item_id');
-        const display = document.getElementById('disp');
         const scanForm = document.getElementById('scanForm');
-
-        function syncDisplay() {
-            display.textContent = input.value || '0';
-        }
 
         function addDigit(digit) {
             if (input.value.length >= 12) return;
             input.value += digit;
-            syncDisplay();
             input.focus();
         }
 
         function deleteDigit() {
             input.value = input.value.slice(0, -1);
-            syncDisplay();
             input.focus();
         }
 
         function clearInput() {
             input.value = '';
-            syncDisplay();
             input.focus();
         }
 
@@ -329,9 +316,7 @@ $displayItemCount = cartCount($receiptRows);
 
         input.addEventListener('input', () => {
             input.value = input.value.replace(/[^0-9]/g, '');
-            syncDisplay();
         });
-        syncDisplay();
     </script>
 </body>
 </html>
