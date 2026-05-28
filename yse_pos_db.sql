@@ -128,6 +128,9 @@ CREATE TABLE `users` (
 -- テーブルのデータのダンプ `users`
 --
 
+INSERT INTO `users` (`id`, `user_id`, `password_hash`, `role`, `created_at`) VALUES
+(1, '1234', '$2y$10$id/Be/U5tlqWQJ3AO7n3SO5tVOZOTgNjxNYewdBbiZcXsIxVFIzam', 0, '2026-04-23 05:16:55'),
+(2, 'adm', '$2y$10$agC/YpxCnU32GxsWYsrDAuSc0RddDKEcTtYHoyJdMHpG3HtKi7n3W', 1, '2026-05-14 13:22:25');
 
 --
 -- ダンプしたテーブルのインデックス
@@ -192,7 +195,7 @@ ALTER TABLE `sale_items`
 -- テーブルの AUTO_INCREMENT `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
