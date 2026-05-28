@@ -78,7 +78,10 @@ $displayItemCount = cartCount($receiptRows);
                 <a href="admin_menu/admin_menu.php">管理メニュー</a>
                 <a href="sales_view.php">売上分析</a>
             <?php endif; ?>
-            
+            <div class="user-status">
+                <span>ログイン中</span>
+                <strong><?= h($_SESSION['login_user_id'] ?? '未ログイン') ?></strong>
+            </div>
             <a href="login.php?logout=1">ログアウト</a>
         </nav>
     </header>
