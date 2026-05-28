@@ -75,7 +75,7 @@ if (!empty($_POST)) {
     <link rel="stylesheet" href="auth.css">
 </head>
 <body class="auth-page">
-    <header class="auth-header">
+    <header class="auth-header" style="display:flex;justify-content:center;align-items:center;">
         <h1>YSE POS ログイン</h1>
     </header>
 
