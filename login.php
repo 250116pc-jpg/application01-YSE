@@ -1,6 +1,9 @@
 <?php
 session_start();
+require_once 'db.php';
+require_once 'funcs/auth.php';
 
+// ログアウト処理
 if (isset($_GET['logout'])) {
     $_SESSION = [];
     session_destroy();
@@ -11,57 +14,41 @@ if (isset($_GET['logout'])) {
 $error = "";
 $registered = isset($_GET['registered']) && $_GET['registered'] == 1;
 
-if (!empty($_POST)) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = trim($_POST['user_id'] ?? '');
     $password = $_POST['password'] ?? '';
-    $submit_type = $_POST['submit_type'] ?? 'user'; // 'user' か 'admin'
+    $submit_type = $_POST['submit_type'] ?? 'user';
 
     if ($user_id === "" || $password === "") {
         $error = "IDとパスワードを入力してください。";
     } else {
-        require_once 'db.php';
-
         try {
             $pdo = getPdo();
-            ensureAppSchema($pdo);
-            ensureDefaultAdmin($pdo);
-
             $stmt = $pdo->prepare('SELECT id, user_id, password_hash, role FROM users WHERE user_id = ?');
             $stmt->execute([$user_id]);
             $user = $stmt->fetch();
 
             if ($user && password_verify($password, $user['password_hash'])) {
-                $user_role = (int)$user['role'];
-
-                // 共通のセッション情報をセット
-                $_SESSION['role'] = $user_role;
-                $_SESSION['user_db_id'] = $user['id'];
-                $_SESSION['login_user_id'] = $user['user_id'];
+                // 正しいログインセッションを初期化（タイムスタンプとCSRFトークン含む）
+                loginUser($user);
 
                 if ($submit_type === 'admin') {
-                    // 「管理者としてログイン」ボタンが押された場合
-                    if ($user_role !== 1) {
-                        // 一般ユーザーが管理者ボタンを押した場合は弾く
-                        $error = "このIDには管理者権限がありません。";
-                        // セットしたセッションをクリア
-                        $_SESSION = [];
-                    } else {
-                        // 管理者権限があれば管理メニューへ
+                    if ((int)$user['role'] === 1) {
                         header('Location: admin_menu/admin_menu.php');
                         exit();
+                    } else {
+                        $error = "このIDには管理者権限がありません。";
+                        $_SESSION = [];
                     }
                 } else {
-                    // 「一般ユーザーとしてログイン」ボタンが押された場合
-                    // 管理者であっても一般ユーザーであっても、そのまま一般画面（index.php）へ遷移
                     header('Location: index.php');
                     exit();
                 }
             } else {
-                $error = "ログイン情報が正しくありません。";
+                $error = "IDまたはパスワードが正しくありません。";
             }
         } catch (PDOException $e) {
-            $error = "データベース接続に失敗しました。";
-            error_log('ログインエラー: ' . $e->getMessage());
+            $error = "データベースエラーが発生しました。";
         }
     }
 }
@@ -73,31 +60,31 @@ if (!empty($_POST)) {
     <title>YSEレジシステム - ログイン</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="auth.css">
-    <link rel="icon" href="favicon.jpg">
+    <link rel="icon" type="image/jpeg" href="favicon.jpg">
 </head>
 <body class="auth-page">
-<header class="auth-header" style="display:flex; justify-content:center; align-items:center; flex-direction:column; margin-bottom: 40px;">
-    <img src="logo.png" alt="YSE POS Logo" style="height: 80px; width: auto; margin-bottom: 20px;">
-    <h1 style="margin: 0; font-size: 28px; margin-bottom: -20px;">YSE POS ログイン</h1>
-</header>
+    <header class="auth-header" style="display:flex; justify-content:center; align-items:center; flex-direction:column; margin-bottom: 40px;">
+        <img src="logo.png" alt="Logo" style="height: 80px; width: auto; margin-bottom: 20px;">
+        <h1 style="margin: 0; font-size: 28px;">YSE POS ログイン</h1>
+    </header>
 
     <main class="auth-container">
         <section class="auth-card">
             <?php if ($registered): ?>
-                <div class="auth-notice success">登録が完了しました。<br>IDとパスワードでログインしてください。</div>
+                <div class="auth-notice success">登録が完了しました。ログインしてください。</div>
             <?php endif; ?>
             <?php if ($error): ?>
-                <div class="auth-notice error"><?= htmlspecialchars($error) ?></div>
+                <div class="auth-notice error"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div>
             <?php endif; ?>
 
-            <form action="" method="post" class="auth-form">
+            <form action="login.php" method="post" class="auth-form">
                 <label>
-                    ユーザーID / 管理者ID
-                    <input type="text" name="user_id" placeholder="IDを入力" value="<?= htmlspecialchars($_POST['user_id'] ?? '') ?>" autofocus>
+                    ユーザーID
+                    <input type="text" name="user_id" value="<?= htmlspecialchars($_POST['user_id'] ?? '', ENT_QUOTES, 'UTF-8') ?>" required autofocus>
                 </label>
                 <label>
                     パスワード
-                    <input type="password" name="password" placeholder="パスワードを入力">
+                    <input type="password" name="password" required>
                 </label>
                 
                 <div class="auth-actions">
