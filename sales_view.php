@@ -87,6 +87,7 @@ $recentSales = $stmtRecent->fetchAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>売上データ分析 | YSE POS</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.jpg">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 10px; margin-bottom: 30px; }
