@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理者ページ | YSEレジ</title>
     <link rel="stylesheet" href="../style.css">
+    <link rel="icon" href="../favicon.jpg">
+
 </head>
 <body class="admin-page">
     <header class="app-header">
