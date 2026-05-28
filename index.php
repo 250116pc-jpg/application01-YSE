@@ -3,7 +3,7 @@ session_start();
 require_once 'db.php';
 require_once 'funcs/functions.php';
 
-if (!isset($_SESSION['user_db_id'])) {
+if (empty($_SESSION['user_db_id'])) {
     header('Location: login.php');
     exit;
 }
