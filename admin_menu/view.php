@@ -179,5 +179,34 @@
             </div>
         </section>
     </main>
+    <script>
+        (function () {
+            let keepSession = false;
+            const originalSubmit = HTMLFormElement.prototype.submit;
+
+            HTMLFormElement.prototype.submit = function () {
+                keepSession = true;
+                return originalSubmit.apply(this, arguments);
+            };
+
+            document.addEventListener('click', function (event) {
+                const link = event.target.closest && event.target.closest('a');
+                if (link && link.href) {
+                    keepSession = true;
+                }
+            });
+
+            document.addEventListener('submit', function () {
+                keepSession = true;
+            });
+
+            window.addEventListener('pagehide', function () {
+                if (keepSession) {
+                    return;
+                }
+                navigator.sendBeacon('../login.php?logout=1');
+            });
+        })();
+    </script>
 </body>
 </html>

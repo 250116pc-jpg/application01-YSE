@@ -2,10 +2,24 @@
 session_start();
 require_once __DIR__ . '/../db.php';
 
-if ((int)($_SESSION['role'] ?? -1) !== 1 || ($_SESSION['login_user_id'] ?? '') !== 'adm') {
+if (
+    !isset($_SESSION['user_db_id']) ||
+    (int)($_SESSION['role'] ?? -1) !== 1 ||
+    ($_SESSION['login_user_id'] ?? '') !== 'adm' ||
+    !isset($_SESSION['time']) ||
+    $_SESSION['time'] + 3600 <= time()
+) {
+    $_SESSION = [];
+    if (ini_get('session.use_cookies')) {
+        $params = session_get_cookie_params();
+        setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+    }
+    session_destroy();
     header('Location: ../login.php');
     exit;
 }
+
+$_SESSION['time'] = time();
 
 function h($value)
 {
