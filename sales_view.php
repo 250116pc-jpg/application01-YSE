@@ -1,9 +1,12 @@
-﻿<?php
+<?php
 session_start();
-require_once __DIR__ . '/db.php';
-require_once __DIR__ . '/funcs/auth.php';
+require_once 'db.php';
 
-requireAdmin('login.php');
+// 【セキュリティ】未ログイン・一般ユーザーを完全に締め出す
+if (!isset($_SESSION['user_db_id']) || (int)($_SESSION['role'] ?? 0) !== 1 || ($_SESSION['login_user_id'] ?? '') !== 'adm') {
+    header('Location: login.php');
+    exit;
+}
 
 function h($str) {
     return htmlspecialchars((string)$str, ENT_QUOTES, 'UTF-8');
@@ -84,6 +87,7 @@ $recentSales = $stmtRecent->fetchAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>売上データ分析 | YSE POS</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.jpg">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 10px; margin-bottom: 30px; }
@@ -95,7 +99,6 @@ $recentSales = $stmtRecent->fetchAll();
         .filter-form select { padding: 8px 12px; border: 1px solid var(--line); border-radius: 4px; font-size: 14px; font-weight: bold; color: var(--ink); }
         .check-col { width: 40px; text-align: center; }
     </style>
-    <?php renderTabSessionGuard('login.php'); ?>
 </head>
 <body class="admin-page">
     <header class="app-header">
@@ -181,4 +184,3 @@ $recentSales = $stmtRecent->fetchAll();
     </script>
 </body>
 </html>
-
