@@ -1,12 +1,9 @@
-<?php
+﻿<?php
 session_start();
-require_once 'db.php';
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/funcs/auth.php';
 
-// 【セキュリティ】未ログイン・一般ユーザーを完全に締め出す
-if (!isset($_SESSION['user_db_id']) || (int)($_SESSION['role'] ?? 0) !== 1 || ($_SESSION['login_user_id'] ?? '') !== 'adm') {
-    header('Location: login.php');
-    exit;
-}
+requireAdmin('login.php');
 
 $period = $_GET['period'] ?? 'all';
 

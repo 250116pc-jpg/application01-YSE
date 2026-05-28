@@ -1,24 +1,35 @@
 :root {
-    --ink: #1f2933;
-    --muted: #5b6472;
-    --line: #c7cdd5;
-    --panel: #ffffff;
-    --page: #e6e9ed;
-    --screen: #17212b;
-    --green: #2f6f4e;
-    --blue: #244a73;
-    --red: #9f2a23;
-    --amber: #785a20;
+    --ink: #1e293b;         /* 深いネイビーグレー（真っ黒より格段に目が疲れない） */
+    --muted: #64748b;       /* 補足用の穏やかなグレー */
+    --line: #cbd5e1;        /* 画面を邪魔しないすっきりした薄い境界線 */
+    --panel: #ffffff;       /* カードや中身はクリーンな白 */
+    --page: #f1f5f9;        /* 【超重要】目が痛くならない、最高に落ち着いた薄いグレー背景 */
+    
+    --screen: #0f172a;       /* 液晶：深みのある高級スレート */
+    --screen-text: #38bdf8;  /* 液晶文字：眩しさを抑えた上品なマイルドブルー */
+    
+    --green: #10b981;       /* 優しいエメラルドグリーン */
+    --green-shadow: #059669;
+    --blue: #1e40af;        /* 【メインカラー】信頼感あふれる上品なネイビー */
+    --blue-shadow: #1e3a8a;
+    --red: #ef4444;         /* 刺激を抑えたソフトな赤 */
+    --red-shadow: #dc2626;
+    --amber: #f59e0b;
+    --amber-shadow: #d97706;
 }
 
 * {
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 body {
     margin: 0;
     min-height: 100vh;
-    font-family: "Segoe UI", "Yu Gothic", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     color: var(--ink);
     background: var(--page);
 }
@@ -29,87 +40,112 @@ select {
     font: inherit;
 }
 
+/* ボタン：ギラギラ感を消し、上品な立体感へ */
 button,
 .top-actions a,
 .button-link {
     border: 1px solid var(--line);
-    border-radius: 4px;
-    background: #fff;
+    border-radius: 6px;
+    background: #ffffff;
     color: var(--ink);
     cursor: pointer;
-    transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+    box-shadow: 0 2px 0 var(--line);
+    transition: transform 60ms ease, box-shadow 60ms ease, background 140ms ease;
 }
 
 button {
-    padding: 12px 14px;
-    font-weight: 700;
+    padding: 10px 16px;
+    font-weight: 600;
 }
 
+/* 【修正】通常の白いボタンだけ、ホバー時に少しグレーにする */
 button:hover,
 .top-actions a:hover,
 .button-link:hover {
-    border-color: #6d7682;
-    background: #f3f5f7;
+    background: #f8fafc;
 }
 
 button:active,
 button.pressed,
 .top-actions a:active,
 .button-link:active {
-    background: #e1e5ea;
+    transform: translateY(2px);
+    box-shadow: none;
 }
+
+/* 各種カラーボタンの初期状態 */
+.primary-btn, .primary-link { background: var(--green) !important; color: #fff !important; border-color: var(--green) !important; box-shadow: 0 2px 0 var(--green-shadow) !important; }
+.accent-btn { background: var(--blue) !important; color: #fff !important; border-color: var(--blue) !important; box-shadow: 0 2px 0 var(--blue-shadow) !important; }
+.danger-btn { background: var(--red) !important; color: #fff !important; border-color: var(--red) !important; box-shadow: 0 2px 0 var(--red-shadow) !important; }
+.danger-soft { background: #fef2f2; color: var(--red); border: 1px solid #fee2e2; box-shadow: 0 2px 0 #fca5a5; }
+
+/* 【新設】カラーボタン専用のホバー設定（文字が絶対に消えないように背景を少し濃くする） */
+.primary-btn:hover, .primary-link:hover { background: #059669 !important; color: #fff !important; }
+.accent-btn:hover { background: #1d4ed8 !important; color: #fff !important; }
+.danger-btn:hover { background: #dc2626 !important; color: #fff !important; }
+.danger-soft:hover { background: #fee2e2 !important; color: var(--red) !important; }
 
 input,
 select {
     width: 100%;
     border: 1px solid var(--line);
-    border-radius: 4px;
-    padding: 11px 12px;
+    border-radius: 6px;
+    padding: 10px 12px;
     background: #fff;
+    font-size: 15px;
+    color: var(--ink);
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
 }
 
 label {
     display: grid;
     gap: 6px;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 700;
-    color: var(--muted);
+    color: var(--ink);
 }
 
+/* 【改善】上部ヘッダー：白文字×ディープネイビー。これでハッキリ見えつつ眩しくない */
 .app-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    padding: 24px clamp(16px, 4vw, 48px);
-    border-bottom: 1px solid #cfd4da;
-    background: #f8f9fa;
-    margin-bottom: 20px;
+    padding: 16px 32px;
+    background: var(--blue); 
+    color: #ffffff;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-h1,
-h2,
-h3,
-p {
+h1, h2, h3, p {
     margin-top: 0;
 }
 
-h1 {
+.app-header h1 {
     margin-bottom: 0;
-    font-size: clamp(28px, 4vw, 44px);
+    font-size: 24px;
+    color: #ffffff;
+    font-weight: 700;
 }
 
 h2 {
     margin-bottom: 16px;
-    font-size: 22px;
+    font-size: 20px;
+    font-weight: 700;
 }
 
-.eyebrow {
-    margin-bottom: 4px;
-    color: var(--blue);
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0;
+.app-header .eyebrow {
+    margin-bottom: 2px;
+    color: #93c5fd;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
 }
 
 .top-actions {
@@ -124,253 +160,130 @@ h2 {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 42px;
-    padding: 0 14px;
+    min-height: 40px;
+    padding: 0 16px;
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .button-link {
     min-height: 0;
-    padding: 12px 14px;
+    padding: 10px 16px;
 }
 
 .primary-link {
-    border-color: var(--green);
-    background: var(--green);
-    color: #fff;
-}
-
-.primary-link:hover {
-    border-color: var(--green);
-    background: #275f42;
-    color: #fff;
+    background: var(--green) !important;
+    color: #fff !important;
+    border-color: var(--green) !important;
+    box-shadow: 0 2px 0 var(--green-shadow) !important;
 }
 
 .user-status {
     display: grid;
     gap: 2px;
-    min-height: 42px;
-    padding: 5px 12px;
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    background: #fff;
+    min-height: 40px;
+    padding: 4px 12px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 6px;
+    background: rgba(255,255,255,0.1);
+    color: #fff;
 }
 
 .user-status span {
-    color: var(--muted);
+    color: #93c5fd;
     font-size: 11px;
-    font-weight: 700;
 }
 
 .user-status strong {
     font-size: 14px;
 }
 
-.auth-page {
-    padding: 0 16px 32px;
-}
-
-.auth-header,
-.auth-shell {
-    width: min(920px, 100%);
-    margin: 0 auto;
-}
-
-.auth-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 28px 0 20px;
-}
-
-.auth-header h1 {
-    font-size: clamp(30px, 5vw, 44px);
-}
-
-.auth-shell {
-    display: grid;
-    grid-template-columns: minmax(320px, 1fr) 320px;
-    gap: 18px;
-    align-items: stretch;
-}
-
-.auth-card,
-.auth-side {
-    border-radius: 4px;
-}
-
-.auth-card {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    padding: 24px;
-    box-shadow: 0 2px 8px rgba(32, 36, 44, 0.08);
-}
-
-.auth-side {
-    display: grid;
-    align-content: start;
-    gap: 14px;
-    padding: 18px;
-    border: 1px solid var(--line);
-    background: #f8f9fa;
-    box-shadow: 0 2px 8px rgba(32, 36, 44, 0.08);
-}
-
-.auth-title {
-    margin-bottom: 18px;
-    padding-bottom: 14px;
-    border-bottom: 1px solid var(--line);
-}
-
-.auth-title h2 {
-    margin-bottom: 0;
-    font-size: 28px;
-}
-
-.auth-form {
-    display: grid;
-    gap: 14px;
-}
-
-.auth-form button {
-    margin-top: 6px;
-}
-
-.auth-screen {
-    margin-bottom: 0;
-    min-height: 118px;
-}
-
-.auth-screen > div:last-child {
-    overflow: hidden;
-    min-height: 46px;
-    font-size: 38px;
-    font-weight: 800;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-.auth-summary {
-    display: grid;
-    gap: 10px;
-}
-
-.auth-summary div {
-    display: grid;
-    gap: 5px;
-    padding: 13px;
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    background: #fff;
-}
-
-.auth-summary span {
-    color: var(--muted);
-    font-size: 12px;
-    font-weight: 800;
-}
-
-.auth-summary strong {
-    font-size: 16px;
-}
-
-.auth-notice {
-    margin: 0 0 16px;
-}
-
+/* 通知メッセージ */
 .notice {
-    margin: 0 clamp(16px, 4vw, 48px) 16px;
-    padding: 13px 16px;
-    border-radius: 4px;
-    border: 1px solid #b7c7dc;
-    background: #e8f1ff;
-    color: #16427a;
-    font-weight: 700;
+    margin: 0 auto 20px;
+    width: min(1200px, calc(100% - 32px));
+    padding: 12px 16px;
+    border-radius: 6px;
+    border: 1px solid var(--line);
+    background: #e0f2fe;
+    color: #0369a1;
+    font-weight: 600;
 }
+.notice.success { border-color: var(--green); background: #ecfdf5; color: #047857; }
+.notice.error { border-color: var(--red); background: #fef2f2; color: #b91c1c; }
 
-.notice.success {
-    border-color: #9fd3b5;
-    background: #e8f7ee;
-    color: #16613a;
-}
-
-.notice.error {
-    border-color: #f0a7a1;
-    background: #fff0ef;
-    color: #9d271d;
-}
-
+/* 全体レイアウト枠 */
 .pos-layout,
 .admin-layout {
-    width: min(1180px, calc(100% - 32px));
+    width: min(1200px, calc(100% - 32px));
     margin: 0 auto 40px;
 }
 
 .pos-layout {
     display: grid;
-    grid-template-columns: minmax(300px, 430px) 1fr;
-    gap: 22px;
+    grid-template-columns: 420px 1fr;
+    gap: 24px;
     align-items: start;
 }
 
+/* メインパネル */
 .register-panel,
 .receipt-panel,
 .admin-card {
     background: var(--panel);
     border: 1px solid var(--line);
-    border-radius: 4px;
-    padding: 18px;
-    box-shadow: 0 2px 8px rgba(32, 36, 44, 0.08);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
+/* 【修正】管理者用ページもネイビーを基調に引き締める */
+.admin-card h2 {
+    border-bottom: 2px solid var(--blue);
+    padding-bottom: 8px;
+    color: var(--blue);
+    font-weight: 700;
+}
+
+/* 液晶画面：目に優しいマイルド仕様 */
 .screen {
     position: relative;
     min-height: 92px;
     margin-bottom: 18px;
-    padding: 34px 18px 14px;
-    border: 2px solid #45515f;
-    border-radius: 4px;
+    padding: 24px 16px 12px;
     background: var(--screen);
-    color: #fff;
+    border-radius: 8px;
+    color: var(--screen-text);
     text-align: right;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .op-indicator {
     position: absolute;
-    top: 10px;
+    top: 8px;
     right: 14px;
-    color: #b9c6d3;
-    font-size: 13px;
-    font-weight: 700;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 #disp {
-    overflow: hidden;
-    min-height: 38px;
-    font-size: 34px;
-    font-weight: 800;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 36px;
+    font-weight: 700;
+    font-family: monospace;
+    letter-spacing: 1px;
 }
 
 .scan-form {
     display: grid;
-    gap: 10px;
-    margin-bottom: 14px;
+    gap: 12px;
+    margin-bottom: 16px;
 }
 
 .scan-row {
     display: grid;
     grid-template-columns: 1fr 100px;
     gap: 10px;
-}
-
-.hint,
-.empty {
-    color: var(--muted);
-    font-size: 13px;
 }
 
 .keypad {
@@ -383,37 +296,14 @@ h2 {
     margin-bottom: 18px;
 }
 
-.span-2 {
-    grid-column: span 2;
-}
+.span-2 { grid-column: span 2; }
+.span-4 { grid-column: span 4; }
 
-.span-4 {
-    grid-column: span 4;
-}
-
-.primary-btn {
-    border-color: var(--green);
-    background: var(--green);
-    color: #fff;
-}
-
-.accent-btn {
-    border-color: var(--blue);
-    background: var(--blue);
-    color: #fff;
-}
-
-.danger-btn {
-    border-color: var(--red);
-    background: var(--red);
-    color: #fff;
-}
-
-.danger-soft {
-    border-color: #d9aaa6;
-    background: #f8eeee;
-    color: var(--red);
-}
+/* 各種カラーボタン */
+.primary-btn { background: var(--green); color: #fff; border-color: var(--green); box-shadow: 0 2px 0 var(--green-shadow); }
+.accent-btn { background: var(--blue); color: #fff; border-color: var(--blue); box-shadow: 0 2px 0 var(--blue-shadow); }
+.danger-btn { background: var(--red); color: #fff; border-color: var(--red); box-shadow: 0 2px 0 var(--red-shadow); }
+.danger-soft { background: #fef2f2; color: var(--red); border: 1px solid #fee2e2; box-shadow: 0 2px 0 #fca5a5; }
 
 .catalog {
     border-top: 1px solid var(--line);
@@ -422,23 +312,26 @@ h2 {
 
 .item-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
 }
 
 .item-tile button {
     width: 100%;
-    min-height: 104px;
-    display: grid;
-    gap: 5px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
     text-align: left;
-    background: #f8f9fa;
+    background: #f8fafc;
+    padding: 10px;
 }
 
 .item-id {
     color: var(--amber);
-    font-size: 12px;
-    font-weight: 800;
+    font-size: 11px;
+    font-weight: 700;
 }
 
 .receipt-head {
@@ -446,152 +339,165 @@ h2 {
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: 12px;
+    margin-bottom: 16px;
 }
 
 .count-badge {
-    min-width: 62px;
-    padding: 9px 12px;
-    border: 1px solid #b8bec6;
-    border-radius: 4px;
-    background: #f3f4f6;
-    color: var(--ink);
-    text-align: center;
-    font-weight: 800;
+    padding: 6px 12px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #f1f5f9;
+    font-weight: 700;
 }
 
 .receipt-lines {
     display: grid;
-    gap: 10px;
+    gap: 8px;
 }
 
+/* 【完全修正】HTMLの要素（5つ）にミリ単位でピッタリ合わせたグリッド定義 */
 .receipt-line {
     display: grid;
-    grid-template-columns: minmax(150px, 1.4fr) 72px 82px 96px 100px auto;
-    gap: 10px;
-    align-items: end;
-    padding: 12px;
+    grid-template-columns: minmax(130px, 1.5fr) 130px 100px 90px auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 14px;
     border: 1px solid var(--line);
-    border-radius: 4px;
-    background: #f8f9fa;
+    border-radius: 8px;
+    background: #f8fafc;
 }
 
-.print-line {
-    grid-template-columns: minmax(150px, 1.4fr) 80px 90px 110px 100px;
+/* 【完全修正】印刷・直近レシート用（子要素4つ）のグリッド定義 */
+.receipt-line.print-line {
+    grid-template-columns: minmax(130px, 1.5fr) 80px 80px auto;
 }
 
 .line-main {
-    display: grid;
-    gap: 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
+.line-main strong { font-size: 15px; }
+.line-main span { color: var(--muted); font-size: 12px; }
 
 .line-total {
-    align-self: center;
     text-align: right;
-    font-size: 18px;
+    font-size: 16px;
+    font-weight: 700;
 }
 
 .line-actions {
     display: flex;
-    gap: 8px;
+    justify-content: flex-end;
+}
+
+.mini-form {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 6px;
+}
+.mini-form input[type="number"] {
+    padding: 6px;
+    text-align: center;
+}
+.mini-form button {
+    padding: 6px 10px;
+    font-size: 13px;
 }
 
 .totals {
     display: grid;
-    gap: 10px;
-    margin: 18px 0;
+    gap: 8px;
+    margin: 20px 0;
     padding-top: 16px;
-    border-top: 2px solid var(--line);
+    border-top: 2px dashed var(--line);
 }
 
 .totals div {
     display: flex;
     justify-content: space-between;
-    gap: 16px;
 }
 
 .grand-total {
-    font-size: 26px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--blue);
 }
 
 .receipt-actions {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 8px;
 }
 
-.receipt-actions form,
-.receipt-actions button {
+/* 【新設】中のformタグも横いっぱいに広げる */
+.receipt-actions form {
     width: 100%;
+    display: flex;
+}
+
+/* 【新設】中のボタンをマスの横幅100%に広げて、文字が収まるように内側の余白を微調整 */
+.receipt-actions button,
+.receipt-actions form button {
+    width: 100%;
+    padding: 12px 4px;
+    font-size: 14px;
 }
 
 .last-receipt {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    margin-top: 18px;
-    padding-top: 14px;
-    border-top: 1px solid var(--line);
-    color: var(--muted);
-}
-
-.last-receipt h3,
-.last-receipt p {
-    margin-bottom: 4px;
-}
-
-.last-receipt.is-visible {
+    margin-top: 20px;
     padding: 14px;
-    border: 1px solid #9fd3b5;
-    border-radius: 4px;
-    background: #eef8f2;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #f8fafc;
+}
+.last-receipt.is-visible {
+    border-color: var(--green);
+    background: #f0fdf4;
 }
 
-.admin-layout {
-    display: grid;
-    gap: 18px;
-}
-
-.hero-admin {
-    background: #f8f9fa;
-}
-
+/* --- 管理画面パーツ (admin_menu.php) --- */
 .inline-form {
     display: grid;
-    grid-template-columns: minmax(180px, 260px) 120px;
-    gap: 12px;
+    grid-template-columns: 200px 100px;
+    gap: 10px;
     align-items: end;
 }
 
+/* 集計ブロック */
 .metric-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    margin-bottom: 18px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
 }
 
 .metric-grid div {
-    display: grid;
-    gap: 6px;
     padding: 16px;
     border: 1px solid var(--line);
-    border-radius: 4px;
-    background: #f8f9fa;
+    border-radius: 8px;
+    background: #f8fafc;
 }
 
 .metric-grid span {
     color: var(--muted);
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 .metric-grid strong {
+    display: block;
     font-size: 24px;
+    color: var(--blue); /* ネイビーで強調 */
+    margin-top: 4px;
 }
 
+/* テーブルデザイン：ヘッダーをネイビーメインに統一 */
 .table-wrap {
     overflow-x: auto;
+    margin-top: 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
 }
 
 table {
@@ -599,154 +505,116 @@ table {
     border-collapse: collapse;
 }
 
-th,
-td {
-    padding: 11px 10px;
-    border-bottom: 1px solid var(--line);
+th, td {
+    padding: 12px 14px;
     text-align: left;
-    white-space: nowrap;
+    font-size: 14px;
 }
 
 th {
-    color: var(--muted);
-    font-size: 13px;
+    background: var(--blue);
+    color: #ffffff;
+    font-weight: 600;
 }
 
+td {
+    background: #ffffff;
+    border-bottom: 1px solid var(--line);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background: #f8fafc;
+}
+
+/* 【完全修正】ユーザー管理行（子要素4つ）にピッタリ合わせたグリッド定義 */
 .user-list {
     display: grid;
     gap: 10px;
+    margin-top: 16px;
 }
 
 .user-row {
     display: grid;
-    grid-template-columns: 1.2fr 230px 300px auto;
-    gap: 10px;
-    align-items: end;
-    padding: 12px;
+    grid-template-columns: 1.2fr 240px 240px auto;
+    gap: 16px;
+    align-items: center;
+    padding: 14px 18px;
     border: 1px solid var(--line);
-    border-radius: 4px;
-    background: #f8f9fa;
+    border-radius: 8px;
+    background: #ffffff;
 }
 
 .user-row > div:first-child {
-    display: grid;
-    gap: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
+.user-row strong { font-size: 15px; }
+.user-row span { color: var(--muted); font-size: 12px; }
 
-.user-row span {
-    color: var(--muted);
-    font-size: 13px;
-}
-
-.mini-form {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
-}
-
-@media (max-width: 900px) {
-    .app-header,
-    .pos-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .app-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-
-    .top-actions,
-    .last-receipt,
-    .auth-header {
-        align-items: stretch;
-        flex-direction: column;
-    }
-
-    .auth-shell {
-        grid-template-columns: 1fr;
-    }
-
-    .receipt-line,
-    .user-row,
-    .metric-grid,
-    .receipt-actions {
-        grid-template-columns: 1fr;
-    }
-
-    .line-total {
-        text-align: left;
-    }
-}
-
-@media print {
-    body * {
-        visibility: hidden;
-    }
-
-    .receipt-panel,
-    .receipt-panel * {
-        visibility: visible;
-    }
-
-    .receipt-panel {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        border: 0;
-        box-shadow: none;
-    }
-
-    .receipt-actions,
-    .top-actions,
-    .app-header,
-    .notice {
-        display: none;
-    }
-}
+/* グラフ・ダッシュボード */
 .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 24px;
-    margin-top: 10px;
-    margin-bottom: 30px;
+    margin-top: 20px;
 }
-@media (max-width: 900px) {
-    .dashboard-grid { grid-template-columns: 1fr; }
-}
+
 .chart-wrapper h3 {
-    font-size: 16px;
-    margin-bottom: 12px;
+    font-size: 15px;
     color: var(--ink);
     border-bottom: 1px solid var(--line);
-    padding-bottom: 8px;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
 }
+
 .chart-container {
     position: relative;
-    height: 280px;
-    width: 100%;
+    height: 260px;
+    background: #f8fafc;
+    border-radius: 6px;
 }
+
 .no-data-msg {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100%;
     color: var(--muted);
-    font-size: 14px;
-    background: #f8f9fa;
-    border: 1px dashed var(--line);
-    border-radius: 4px;
+    font-size: 13px;
 }
+
 .filter-form {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 10px;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 .filter-form select {
-    padding: 8px 12px;
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: bold;
-    color: var(--ink);
+    width: auto;
+    padding: 6px 12px;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 960px) {
+    .pos-layout {
+        grid-template-columns: 1fr;
+    }
+    .receipt-line,
+    .receipt-line.print-line,
+    .user-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .metric-grid,
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .receipt-actions {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }

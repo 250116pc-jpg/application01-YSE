@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 function getPdo()
 {
     $dsn = 'mysql:dbname=yse_pos_db;host=localhost;charset=utf8mb4';
@@ -84,20 +84,7 @@ function ensureColumnExists(PDO $pdo, $table, $column, $definition)
 
 function ensureDefaultAdmin(PDO $pdo)
 {
-    // 現在登録されている全ユーザーの数を取得
-    $userCount = (int)$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
-
-    // データベースにユーザーが一人もいない場合（完全な初回起動時）のみ初期管理者を作成する
-    if ($userCount === 0) {
-        $adminId = 'adm';
-        $adminPassword = 'adm';
-        $passwordHash = password_hash($adminPassword, PASSWORD_DEFAULT);
-
-        $stmt = $pdo->prepare('INSERT INTO users (user_id, password_hash, role, created_at) VALUES (?, ?, 1, NOW())');
-        $stmt->execute([$adminId, $passwordHash]);
-    }
-    
-    // すでに誰かしらユーザーが存在している場合は、初期IDを勝手に作ったり上書きしたりしない
+    // The initial administrator is created from setup.php only.
 }
 
 function getTaxRate(PDO $pdo)
@@ -121,3 +108,4 @@ function setTaxRate(PDO $pdo, $rate)
     $stmt = $pdo->prepare("INSERT INTO settings (`key`, `value`) VALUES ('tax_rate', ?) ON DUPLICATE KEY UPDATE `value` = ?");
     $stmt->execute([$rate, $rate]);
 }
+
