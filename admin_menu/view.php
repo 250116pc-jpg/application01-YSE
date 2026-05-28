@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理者ページ | YSEレジ</title>
     <link rel="stylesheet" href="../style.css">
+    <link rel="icon" href="../favicon.jpg">
+
 </head>
 <body class="admin-page">
     <header class="app-header">
@@ -179,5 +181,34 @@
             </div>
         </section>
     </main>
+    <script>
+        (function () {
+            let keepSession = false;
+            const originalSubmit = HTMLFormElement.prototype.submit;
+
+            HTMLFormElement.prototype.submit = function () {
+                keepSession = true;
+                return originalSubmit.apply(this, arguments);
+            };
+
+            document.addEventListener('click', function (event) {
+                const link = event.target.closest && event.target.closest('a');
+                if (link && link.href) {
+                    keepSession = true;
+                }
+            });
+
+            document.addEventListener('submit', function () {
+                keepSession = true;
+            });
+
+            window.addEventListener('pagehide', function () {
+                if (keepSession) {
+                    return;
+                }
+                navigator.sendBeacon('../login.php?logout=1');
+            });
+        })();
+    </script>
 </body>
 </html>

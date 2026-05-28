@@ -73,11 +73,14 @@ if (!empty($_POST)) {
     <title>YSEレジシステム - ログイン</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="auth.css">
+    <link rel="icon" href="favicon.jpg">
+
 </head>
 <body class="auth-page">
-    <header class="auth-header">
-        <h1>YSE POS ログイン</h1>
-    </header>
+<header class="auth-header" style="display:flex; justify-content:center; align-items:center; flex-direction:column; margin-bottom: 40px;">
+    <img src="logo.png" alt="YSE POS Logo" style="height: 80px; width: auto; margin-bottom: 20px;">
+    <h1 style="margin: 0; font-size: 28px; margin-bottom: -20px;">YSE POS ログイン</h1>
+</header>
 
     <main class="auth-container">
         <section class="auth-card">
