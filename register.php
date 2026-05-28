@@ -1,18 +1,5 @@
 <?php
 session_start();
-require_once __DIR__ . '/db.php';
-
-try {
-    $pdo = getPdo();
-    ensureAppSchema($pdo);
-    if ((int)$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn() === 0) {
-        header('Location: setup.php');
-        exit;
-    }
-} catch (PDOException $e) {
-    error_log('setup check error: ' . $e->getMessage());
-}
-
 $error = "";
 
 if (!empty($_POST)) {
@@ -33,6 +20,7 @@ if (!empty($_POST)) {
         try {
             $pdo = getPdo();
             ensureAppSchema($pdo);
+            ensureDefaultAdmin($pdo);
 
             $stmt = $pdo->prepare('SELECT id FROM users WHERE user_id = ?');
             $stmt->execute([$user_id]);
@@ -60,6 +48,7 @@ if (!empty($_POST)) {
     <title>YSEレジシステム - 新規登録</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="auth.css">
+    <link rel="icon" href="favicon.jpg">
 </head>
 <body class="auth-page">
     <header class="auth-header">
