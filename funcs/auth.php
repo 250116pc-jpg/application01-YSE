@@ -1,4 +1,5 @@
 <?php
+const SESSION_TTL = 3600;
 const ADMIN_SESSION_TTL = 3600;
 
 function csrfToken()
@@ -49,11 +50,26 @@ function destroySessionAndRedirect($location)
     exit;
 }
 
+function isSessionActive(): bool
+{
+    return isset($_SESSION['user_db_id'])
+        && isset($_SESSION['time'])
+        && $_SESSION['time'] + SESSION_TTL > time();
+}
+
+function requireLogin($loginLocation = 'login.php')
+{
+    if (!isSessionActive()) {
+        destroySessionAndRedirect($loginLocation);
+    }
+
+    $_SESSION['time'] = time();
+}
+
 function requireAdmin($loginLocation = 'login.php')
 {
-    $isAdmin = isset($_SESSION['user_db_id'])
-        && (int)($_SESSION['role'] ?? -1) === 1
-        && ($_SESSION['login_user_id'] ?? '') === 'adm';
+    $isAdmin = isSessionActive()
+        && (int)($_SESSION['role'] ?? -1) === 1;
 
     $isFresh = isset($_SESSION['time']) && $_SESSION['time'] + ADMIN_SESSION_TTL > time();
 
@@ -66,7 +82,6 @@ function requireAdmin($loginLocation = 'login.php')
 
 function renderTabSessionGuard($logoutPath = 'login.php')
 {
-    $token = htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8');
     $path = htmlspecialchars($logoutPath, ENT_QUOTES, 'UTF-8');
 
     echo <<<HTML
@@ -85,15 +100,7 @@ function renderTabSessionGuard($logoutPath = 'login.php')
             }
 
             if (!sessionStorage.getItem(tabKey)) {
-                const form = document.createElement('form');
-                form.method = 'post';
-                form.action = '{$path}';
-                form.style.display = 'none';
-                form.innerHTML =
-                    '<input type="hidden" name="action" value="logout">' +
-                    '<input type="hidden" name="csrf_token" value="{$token}">';
-                document.documentElement.appendChild(form);
-                form.submit();
+                window.location.href = '{$path}?logout=1';
             }
         })();
     </script>

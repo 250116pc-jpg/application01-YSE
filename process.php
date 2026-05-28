@@ -1,6 +1,7 @@
 <?php
 session_start();
 require_once 'db.php';
+require_once 'funcs/auth.php';
 require_once 'funcs/functions_process.php';
 
 
@@ -8,9 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirectToRegister();
 }
 
-if (!isset($_SESSION['user_db_id'])) {
-    redirectToLogin();
-}
+requireLogin();
 
 $action = $_POST['action'] ?? '';
 

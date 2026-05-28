@@ -618,3 +618,33 @@ tr:hover td {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+/* --- 管理機能ナビゲーション用の新設スタイル（コンパクト版） --- */
+.admin-nav-grid {
+    display: grid;
+    /* 4カラムで綺麗に横並び、狭くなったら自動で折り返し */
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;       /* 「レジへ」などの上部ボタンに近い、スマートな高さ */
+    padding: 0 16px;
+    background: #f8fafc;    /* 落ち着いた薄いグレー背景 */
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--ink);
+}
+
+/* ホバー時に文字と枠線がネイビーになり、背景が白に切り替わる上品なエフェクト */
+.nav-btn:hover {
+    background: #ffffff !important;
+    border-color: var(--blue) !important;
+    color: var(--blue) !important;
+}

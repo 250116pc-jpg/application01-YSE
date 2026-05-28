@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- ホスト: 127.0.0.1
--- 生成日時: 2026-05-28 12:23:56
+-- 生成日時: 2026-05-21 10:12:00
 -- サーバのバージョン： 10.4.32-MariaDB
 -- PHP のバージョン: 8.2.12
 
@@ -39,13 +39,12 @@ CREATE TABLE `items` (
 --
 
 INSERT INTO `items` (`id`, `name`, `price`, `stock`) VALUES
-(1, 'にんじん', 350, 10),
-(2, 'じゃがいも', 300, 11),
-(3, 'たまねぎ', 380, 17),
-(4, 'トマト', 400, 7),
-(5, '消臭力', 750, 8),
-(6, '豚肉', 350, 8),
-(7, '吉岡稔持', 3600, 6);
+(1, 'にんじん', 350, 13),
+(2, 'じゃがいも', 300, 12),
+(3, 'たまねぎ', 380, 18),
+(4, 'トマト', 400, 10),
+(5, '消臭力', 750, 9),
+(6, '豚肉', 350, 13);
 
 -- --------------------------------------------------------
 
@@ -71,16 +70,7 @@ INSERT INTO `sales` (`id`, `customer_id`, `amount`, `created_at`) VALUES
 (12, 1, 61, '2026-04-30 02:52:17'),
 (13, 1, 20921, '2026-05-14 00:19:59'),
 (14, 1, 23013, '2026-05-14 00:20:49'),
-(15, 1, 637, '2026-05-14 01:23:19'),
-(16, 5, 385, '2026-05-21 01:52:04'),
-(17, 4, 2068, '2026-05-21 01:53:28'),
-(18, 4, 3960, '2026-05-21 02:32:57'),
-(19, 4, 825, '2026-05-21 02:40:34'),
-(20, 4, 4345, '2026-05-21 04:28:39'),
-(21, 4, 385, '2026-05-21 04:37:40'),
-(22, 5, 814, '2026-05-21 05:14:08'),
-(23, 4, 385, '2026-05-21 05:35:47'),
-(24, 4, 385, '2026-05-28 01:00:07');
+(15, 1, 637, '2026-05-14 01:23:19');
 
 -- --------------------------------------------------------
 
@@ -101,24 +91,6 @@ CREATE TABLE `sale_items` (
   `subtotal` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- テーブルのデータのダンプ `sale_items`
---
-
-INSERT INTO `sale_items` (`id`, `sale_id`, `item_id`, `item_name`, `unit_price`, `quantity`, `discount_rate`, `discount_amount`, `discount`, `subtotal`, `created_at`) VALUES
-(1, 16, 6, '豚肉', 350, 1, 0.00, 0, 0, 350, '2026-05-21 01:52:04'),
-(2, 17, 2, 'じゃがいも', 300, 1, 0.00, 0, 0, 300, '2026-05-21 01:53:28'),
-(3, 17, 3, 'たまねぎ', 380, 1, 0.00, 0, 0, 380, '2026-05-21 01:53:28'),
-(4, 17, 4, 'トマト', 400, 3, 0.00, 0, 0, 1200, '2026-05-21 01:53:28'),
-(5, 18, 7, '吉岡稔持', 3600, 1, 0.00, 0, 0, 3600, '2026-05-21 02:32:57'),
-(6, 19, 5, '消臭力', 750, 1, 0.00, 0, 0, 750, '2026-05-21 02:40:34'),
-(7, 20, 6, '豚肉', 350, 1, 0.00, 0, 0, 350, '2026-05-21 04:28:39'),
-(8, 20, 7, '吉岡稔持', 3600, 1, 0.00, 0, 0, 3600, '2026-05-21 04:28:39'),
-(9, 21, 6, '豚肉', 350, 1, 0.00, 0, 0, 350, '2026-05-21 04:37:40'),
-(10, 22, 1, 'にんじん', 350, 3, 20.00, 100, 310, 740, '2026-05-21 05:14:08'),
-(11, 23, 6, '豚肉', 350, 1, 0.00, 0, 0, 350, '2026-05-21 05:35:47'),
-(12, 24, 6, '豚肉', 350, 1, 0.00, 0, 0, 350, '2026-05-28 01:00:07');
 
 -- --------------------------------------------------------
 
@@ -157,8 +129,8 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `user_id`, `password_hash`, `role`, `created_at`) VALUES
-(4, 'adm', '$2y$10$JkylHDK19/Qe4S.tfWWAwOSZGTXwKMSwe9wS3c2hoQ/5XLJDLlaRS', 1, '2026-05-21 01:23:53'),
-(5, '1234', '$2y$10$BXGHE0qX1E2t8KLOaqHe9eKy9bWO/iCfHZ.MpFcdh31O.zxajiv1i', 0, '2026-05-21 01:26:11');
+(1, '1234', '$2y$10$id/Be/U5tlqWQJ3AO7n3SO5tVOZOTgNjxNYewdBbiZcXsIxVFIzam', 0, '2026-04-23 05:16:55'),
+(2, 'adm', '$2y$10$agC/YpxCnU32GxsWYsrDAuSc0RddDKEcTtYHoyJdMHpG3HtKi7n3W', 1, '2026-05-14 13:22:25');
 
 --
 -- ダンプしたテーブルのインデックス
@@ -205,25 +177,25 @@ ALTER TABLE `users`
 -- テーブルの AUTO_INCREMENT `items`
 --
 ALTER TABLE `items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- テーブルの AUTO_INCREMENT `sales`
 --
 ALTER TABLE `sales`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '売上ID', AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '売上ID', AUTO_INCREMENT=16;
 
 --
 -- テーブルの AUTO_INCREMENT `sale_items`
 --
 ALTER TABLE `sale_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- テーブルの AUTO_INCREMENT `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

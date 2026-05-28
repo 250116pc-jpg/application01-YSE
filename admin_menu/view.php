@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理者ページ | YSEレジ</title>
     <link rel="stylesheet" href="../style.css">
+    <link rel="icon" href="../favicon.jpg">
     <?php renderTabSessionGuard('../login.php'); ?>
 </head>
 <body class="admin-page">
@@ -22,11 +23,7 @@
             <?php if (!isset($_SESSION['user_db_id'])): ?>
                 <a href="../login.php">ログイン</a>
             <?php else: ?>
-                <form method="post" action="../login.php" class="logout-form">
-                    <input type="hidden" name="action" value="logout">
-                    <input type="hidden" name="csrf_token" value="<?= h(csrfToken()) ?>">
-                    <button type="submit">ログアウト</button>
-                </form>
+                <a href="../login.php?logout=1">ログアウト</a>
             <?php endif; ?>
         </nav>
     </header>
@@ -40,17 +37,11 @@
             <div>
                 <p class="eyebrow">SYSTEM</p>
                 <h2>管理機能一覧</h2>
-                <p style="margin-bottom: 10px;">操作したい機能を選択すると、その場所に移動します</p>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
-                    <a href="#tax-section" style="background: #eee; padding: 6px 12px; border-radius: 4px; text-decoration: none; color: #333; font-size: 14px;">消費税変更</a>
-                    <a href="#sales-section" style="background: #eee; padding: 6px 12px; border-radius: 4px; text-decoration: none; color: #333; font-size: 14px;">売上確認</a>
-                    <a href="#user-section" style="background: #eee; padding: 6px 12px; border-radius: 4px; text-decoration: none; color: #333; font-size: 14px;">ユーザー管理</a>
-                    <a href="#item-section" style="background: #eee; padding: 6px 12px; border-radius: 4px; text-decoration: none; color: #333; font-size: 14px;">商品・在庫管理</a>
-                </div>
+                <p>消費税変更、売上確認、ユーザー削除、パスワード変更、商品管理をここで操作できます。</p>
             </div>
         </section>
 
-        <section class="admin-card" id='tax-section'>
+        <section class="admin-card">
             <h2>消費税の変更</h2>
             <form method="post" class="inline-form">
                 <input type="hidden" name="action" value="update_tax">
@@ -62,7 +53,7 @@
             </form>
         </section>
 
-        <section class="admin-card" id='sales-section'>
+        <section class="admin-card">
             <h2>売上の表示</h2>
             <div class="metric-grid">
                 <div><span>本日の売上</span><strong><?= yen($salesToday) ?></strong></div>
@@ -93,7 +84,7 @@
             </div>
         </section>
 
-        <section class="admin-card" id='user-section'>
+        <section class="admin-card">
             <h2>ユーザー管理</h2>
             <div class="user-list">
                 <?php foreach ($users as $user): ?>
@@ -132,7 +123,7 @@
             </div>
         </section>
 
-        <section class="admin-card" id='item-section'>
+        <section class="admin-card">
             <h2>商品と在庫の管理</h2>
             
             <div style="margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
@@ -190,29 +181,5 @@
             </div>
         </section>
     </main>
-    <script>
-        (function () {
-            let keepSession = false;
-            const originalSubmit = HTMLFormElement.prototype.submit;
-
-            HTMLFormElement.prototype.submit = function () {
-                keepSession = true;
-                return originalSubmit.apply(this, arguments);
-            };
-
-            document.addEventListener('click', function (event) {
-                const link = event.target.closest && event.target.closest('a');
-                if (link && link.href) {
-                    keepSession = true;
-                }
-            });
-
-            document.addEventListener('submit', function () {
-                keepSession = true;
-            });
-
-           
-        })();
-    </script>
 </body>
 </html>
