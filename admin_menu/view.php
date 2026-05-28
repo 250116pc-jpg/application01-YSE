@@ -211,15 +211,7 @@
                 keepSession = true;
             });
 
-            window.addEventListener('pagehide', function () {
-                if (keepSession) {
-                    return;
-                }
-                const data = new FormData();
-                data.append('action', 'logout');
-                data.append('csrf_token', '<?= h(csrfToken()) ?>');
-                navigator.sendBeacon('../login.php', data);
-            });
+           
         })();
     </script>
 </body>
