@@ -1,11 +1,9 @@
 <?php
 session_start();
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../funcs/auth.php';
 
-if ((int)($_SESSION['role'] ?? -1) !== 1 || ($_SESSION['login_user_id'] ?? '') !== 'adm') {
-    header('Location: ../login.php');
-    exit;
-}
+requireAdmin('../login.php');
 
 function h($value)
 {
@@ -23,7 +21,6 @@ $messageType = 'info';
 try {
     $pdo = getPdo();
     ensureAppSchema($pdo);
-    ensureDefaultAdmin($pdo);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $action = $_POST['action'] ?? '';
