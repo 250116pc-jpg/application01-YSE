@@ -2,7 +2,6 @@
 session_start();
 require_once 'db.php';
 require_once 'funcs/functions.php';
-require_once __DIR__ . '/funcs/auth.php';
 
 if (!isset($_SESSION['user_db_id'])) {
     header('Location: login.php');
@@ -50,51 +49,23 @@ $displayItemCount = cartCount($receiptRows);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YSEレジ</title>
     <link rel="stylesheet" href="style.css">
-    
+    <link rel="icon" href="favicon.jpg">
     <style>
         @media print {
-            /* 1. 印刷時に絶対に見せたくないものをすべて隠す */
+            /* ヘッダー、左側のレジパネル、印刷ボタンなどのアクションエリア、直近レシートのナビゲーションを隠す */
             .app-header, 
             .register-panel, 
             .receipt-actions, 
-            .last-receipt,
-            .notice,         /* 画面上部のお知らせメッセージ */
-            .line-actions {  /* カート内の「更新」「取消」ボタン */
+            .last-receipt {
                 display: none !important;
             }
             
-            /* 2. レシート部分だけを紙の左上にピタッと配置する設定 */
-            body, .pos-page {
-                background: white !important;
-            }
+            /* レシート部分だけを左上に詰めて表示する設定 */
             .pos-layout {
                 display: block !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-            .receipt-panel {
-                box-shadow: none !important;
-                border: none !important;
-                width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-
-            /* 3. 入力ボックスの枠線を消して、ただの文字のように見せる */
-            input[type="number"] {
-                border: none !important;
-                background: transparent !important;
-                text-align: right;
-                -moz-appearance: textfield; /* Firefoxの矢印消し */
-            }
-            input[type="number"]::-webkit-outer-spin-button,
-            input[type="number"]::-webkit-inner-spin-button {
-                -webkit-appearance: none; /* Chrome/Safariの矢印消し */
-                margin: 0;
             }
         }
     </style>
-    <?php renderTabSessionGuard('login.php'); ?>
 </head>
 <body class="pos-page">
     <header class="app-header">
@@ -108,11 +79,7 @@ $displayItemCount = cartCount($receiptRows);
                 <a href="sales_view.php">売上分析</a>
             <?php endif; ?>
             
-            <form method="post" action="login.php" class="logout-form">
-                <input type="hidden" name="action" value="logout">
-                <input type="hidden" name="csrf_token" value="<?= h(csrfToken()) ?>">
-                <button type="submit">ログアウト</button>
-            </form>
+            <a href="login.php?logout=1">ログアウト</a>
         </nav>
     </header>
 
