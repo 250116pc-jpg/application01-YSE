@@ -648,3 +648,35 @@ tr:hover td {
     border-color: var(--blue) !important;
     color: var(--blue) !important;
 }
+@media print {
+    .app-header,
+    .register-panel,
+    .receipt-actions,
+    .last-receipt,
+    .notice,
+    .line-actions {
+        display: none !important;
+    }
+
+    body, .pos-layout {
+        display: block !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #fff !important;
+    }
+
+    .receipt-panel {
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .receipt-line {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+}
