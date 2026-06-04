@@ -37,11 +37,17 @@
             <div>
                 <p class="eyebrow">SYSTEM</p>
                 <h2>管理機能一覧</h2>
-                <p>消費税変更、売上確認、ユーザー削除、パスワード変更、商品管理をここで操作できます。</p>
+                <p>
+                    <a href="#tax">消費税変更</a>、
+                    <a href="#sales">売上確認</a>、
+                    <a href="#users">ユーザー削除</a>、
+                    <a href="#users">パスワード変更</a>、
+                    <a href="#items">商品管理</a>をここで操作できます。
+                </p>
             </div>
         </section>
 
-        <section class="admin-card">
+        <section class="admin-card" id="tax">
             <h2>消費税の変更</h2>
             <form method="post" class="inline-form">
                 <input type="hidden" name="action" value="update_tax">
@@ -53,7 +59,7 @@
             </form>
         </section>
 
-        <section class="admin-card">
+        <section class="admin-card" id="sales">
             <h2>売上の表示</h2>
             <div class="metric-grid">
                 <div><span>本日の売上</span><strong><?= yen($salesToday) ?></strong></div>
@@ -84,7 +90,7 @@
             </div>
         </section>
 
-        <section class="admin-card">
+        <section class="admin-card" id="users">
             <h2>ユーザー管理</h2>
             <div class="user-list">
                 <?php foreach ($users as $user): ?>
@@ -123,7 +129,7 @@
             </div>
         </section>
 
-        <section class="admin-card">
+        <section class="admin-card" id="items">
             <h2>商品と在庫の管理</h2>
             
             <div style="margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-radius: 8px;">
