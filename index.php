@@ -49,22 +49,7 @@ $displayItemCount = cartCount($receiptRows);
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="favicon.jpg">
     <?php renderTabSessionGuard('login.php'); ?>
-    <style>
-        @media print {
-            /* ヘッダー、左側のレジパネル、印刷ボタンなどのアクションエリア、直近レシートのナビゲーションを隠す */
-            .app-header, 
-            .register-panel, 
-            .receipt-actions, 
-            .last-receipt {
-                display: none !important;
-            }
-            
-            /* レシート部分だけを左上に詰めて表示する設定 */
-            .pos-layout {
-                display: block !important;
-            }
-        }
-    </style>
+    
 </head>
 <body class="pos-page">
     <header class="app-header">
